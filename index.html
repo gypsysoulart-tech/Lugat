@@ -618,7 +618,7 @@ mark { background: var(--hl); color: var(--text); border-radius: 2px; padding: 0
   <div class="topbar-right">
     <div class="seg" id="script-seg">
       <button class="active" onclick="setScript('cyr')">Кирилл</button>
-      <button onclick="setScript('lat')">Latin</button>
+      <button onclick="setScript('lat')">Lotin</button>
     </div>
     <div class="seg" id="lang-seg">
       <button class="active" onclick="setLang('uz')">Ўзбек</button>
@@ -693,7 +693,7 @@ mark { background: var(--hl); color: var(--text); border-radius: 2px; padding: 0
 <script>
 const CYR_MAP=[['Ё','Yo'],['ё','yo'],['Ю','Yu'],['ю','yu'],['Я','Ya'],['я','ya'],['Ж','J'],['ж','j'],['Х','X'],['х','x'],['Ц','Ts'],['ц','ts'],['Ч','Ch'],['ч','ch'],['Ш','Sh'],['ш','sh'],['Щ','Sh'],['щ','sh'],['Ъ',"'"],['ъ',"'"],['Ь',''],['ь',''],['А','A'],['а','a'],['Б','B'],['б','b'],['В','V'],['в','v'],['Г','G'],['г','g'],['Д','D'],['д','d'],['Е','E'],['е','e'],['З','Z'],['з','z'],['И','I'],['и','i'],['Й','Y'],['й','y'],['К','K'],['к','k'],['Л','L'],['л','l'],['М','M'],['м','m'],['Н','N'],['н','n'],['О','O'],['о','o'],['П','P'],['п','p'],['Р','R'],['р','r'],['С','S'],['с','s'],['Т','T'],['т','t'],['У','U'],['у','u'],['Ф','F'],['ф','f'],['Э','E'],['э','e'],['Ғ',"G'"],['ғ',"g'"],['Ҳ','H'],['ҳ','h'],['Қ','Q'],['қ','q'],['Ў',"O'"],['ў',"o'"]];
 const UZ_CYR=['А','Б','В','Г','Д','Е','Ж','З','И','Й','К','Л','М','Н','О','П','Р','С','Т','У','Ф','Х','Ч','Ш','Э','Ю','Я','Ғ','Қ','Ҳ','Ў'];
-const UZ_LAT=['A','B','D','E','F','G',"G'",'H','I','J','K','L','M','N','O',"O'",'Q','R','S','T','U','V','X','Y','Z'];
+const UZ_LAT=['A','B','D','E','F','G',"G'",'H','I','J','K','L','M','N','O',"O'",'P','Q','R','S','T','U','V','X','Y','Z'];
 const RU_AL=['А','Б','В','Г','Д','Е','Ж','З','И','К','Л','М','Н','О','П','Р','С','Т','У','Ф','Х','Ц','Ч','Ш','Э','Ю','Я'];
 
 let entries=[], script='cyr', lang='uz', activeAlpha=null, editMode=false, changes=0, timer=null;
@@ -703,9 +703,30 @@ const patches={};
 function c2l(s){let r=s;for(const[c,l]of CYR_MAP)r=r.split(c).join(l);return r}
 function disp(s){return script==='lat'?c2l(s||''):(s||'')}
 
+// Cyrillic → Latin letter equivalents
+const CYR_TO_LAT_LETTER = {
+  'А':'A','Б':'B','В':'V','Г':'G','Д':'D','Е':'E','Ж':'J','З':'Z',
+  'И':'I','Й':'Y','К':'K','Л':'L','М':'M','Н':'N','О':'O','П':'P',
+  'Р':'R','С':'S','Т':'T','У':'U','Ф':'F','Х':'X','Ч':'Ch','Ш':'Sh',
+  'Э':'E','Ю':'Yu','Я':'Ya','Ғ':"G'",'Қ':'Q','Ҳ':'H','Ў':"O'"
+};
+const LAT_TO_CYR_LETTER = {
+  'A':'А','B':'Б','D':'Д','E':'Э','F':'Ф','G':'Г',"G'":'Ғ','H':'Ҳ',
+  'I':'И','J':'Ж','K':'К','L':'Л','M':'М','N':'Н','O':'О',"O'":'Ў',
+  'P':'П','Q':'Қ','R':'Р','S':'С','T':'Т','U':'У','V':'В','X':'Х',
+  'Y':'Й','Z':'З'
+};
+
 function setScript(s){
+  // Map current active letter to equivalent in new script
+  if(activeAlpha){
+    const mapped = s==='lat'
+      ? CYR_TO_LAT_LETTER[activeAlpha]
+      : LAT_TO_CYR_LETTER[activeAlpha];
+    activeAlpha = mapped || null;
+  }
+
   script=s;
-  activeAlpha=null;
   document.getElementById('script-seg').querySelectorAll('button').forEach((b,i)=>b.classList.toggle('active',(i===0&&s==='cyr')||(i===1&&s==='lat')));
   document.getElementById('search').placeholder=lang==='ru'?'Поиск на русском...':(s==='lat'?"So'z qidiring...":'Сўз қидиринг...');
   buildAlpha();render();
@@ -734,7 +755,7 @@ function buildAlpha(){
   bar.innerHTML='';
   const all=document.createElement('button');
   all.className='alpha-btn'+(activeAlpha?'':' active');
-  all.textContent=script==='lat'?'All':'Бар';
+  all.textContent=script==='lat'?'Barchasi':'Барча';
   all.onclick=()=>{activeAlpha=null;buildAlpha();render();};
   bar.appendChild(all);
   const div=document.createElement('div');
