@@ -397,6 +397,139 @@ body {
 .ie-cancel { height: 28px; padding: 0 12px; background: transparent; border: 1px solid var(--border2); border-radius: 6px; font-size: 12px; font-family: inherit; color: var(--text2); cursor: pointer; }
 .ie-cancel:hover { background: var(--surface2); }
 
+/* ── ENTRY EXPANDED ── */
+.entry.expanded { background: var(--surface2); margin: 0 -12px; padding: 12px 12px; }
+.entry.expanded .entry-def { -webkit-line-clamp: unset; display: block; }
+.entry-def {
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.65;
+  padding-top: 1px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  cursor: pointer;
+}
+.entry.expanded .entry-def { cursor: default; }
+.entry-def.short { display: block; overflow: visible; cursor: default; }
+.expand-hint {
+  font-size: 11px;
+  color: var(--blue-text);
+  margin-top: 4px;
+  cursor: pointer;
+  display: none;
+  font-weight: 500;
+}
+.entry:not(.expanded) .entry-def.clipped ~ .expand-hint { display: block; }
+
+/* ── COPY TOAST ── */
+.copy-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--accent);
+  color: #fff;
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  z-index: 1000;
+  transition: transform .2s cubic-bezier(.34,1.56,.64,1);
+  pointer-events: none;
+  white-space: nowrap;
+}
+.copy-toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ── FAVORITES ── */
+.fav-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 4px;
+  color: var(--text3);
+  font-size: 14px;
+  line-height: 1;
+  transition: color .1s, transform .15s;
+  flex-shrink: 0;
+}
+.fav-btn:hover { color: var(--amber); transform: scale(1.2); }
+.fav-btn.active { color: var(--amber); }
+
+.fav-panel {
+  display: none;
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  width: 360px;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  z-index: 500;
+  flex-direction: column;
+  box-shadow: -4px 0 20px rgba(0,0,0,.08);
+}
+.fav-panel.open { display: flex; }
+.fav-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.fav-header h2 { font-size: 14px; font-weight: 600; }
+.fav-close {
+  width: 28px; height: 28px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text2);
+  font-size: 16px;
+}
+.fav-close:hover { background: var(--surface2); }
+.fav-list { flex: 1; overflow-y: auto; padding: 8px 0; }
+.fav-entry {
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background .08s;
+}
+.fav-entry:hover { background: var(--surface2); }
+.fav-entry-word { font-size: 13px; font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+.fav-entry-ru { font-size: 12px; color: var(--blue-text); margin-top: 2px; }
+.fav-empty { padding: 40px 20px; text-align: center; color: var(--text3); font-size: 13px; }
+.fav-footer {
+  padding: 12px 20px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text3);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.fav-clear { font-size: 12px; color: var(--red); cursor: pointer; background: none; border: none; font-family: inherit; }
+.fav-clear:hover { text-decoration: underline; }
+
+/* ── FAV BUTTON IN TOPBAR ── */
+.fav-topbtn {
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  background: var(--surface);
+  color: var(--text2);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 5px;
+  transition: all .12s;
+  font-family: inherit;
+}
+.fav-topbtn:hover { border-color: var(--amber); color: var(--amber); background: var(--amber-bg); }
+.fav-topbtn .fav-count { background: var(--amber); color: #fff; border-radius: 10px; padding: 0 6px; font-size: 10px; display: none; }
+.fav-topbtn .fav-count.show { display: inline; }
+
 /* ── HIGHLIGHT ── */
 mark { background: var(--hl); color: var(--text); border-radius: 2px; padding: 0 1px; }
 
@@ -491,6 +624,10 @@ mark { background: var(--hl); color: var(--text); border-radius: 2px; padding: 0
       <button class="active" onclick="setLang('uz')">Ўзбек</button>
       <button id="btn-ru" onclick="setLang('ru')">Рус</button>
     </div>
+    <button class="fav-topbtn" onclick="toggleFavPanel()">
+      ★ Сақланган
+      <span class="fav-count" id="fav-count">0</span>
+    </button>
     <button class="icon-btn" id="edit-btn" onclick="toggleEdit()">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
       Таҳрир
@@ -535,6 +672,22 @@ mark { background: var(--hl); color: var(--text); border-radius: 2px; padding: 0
   </div>
 </main>
 
+<!-- COPY TOAST -->
+<div class="copy-toast" id="copy-toast">Нусхаланди</div>
+
+<!-- FAVORITES PANEL -->
+<div class="fav-panel" id="fav-panel">
+  <div class="fav-header">
+    <h2>★ Сақланган сўзлар</h2>
+    <button class="fav-close" onclick="toggleFavPanel()">✕</button>
+  </div>
+  <div class="fav-list" id="fav-list"></div>
+  <div class="fav-footer">
+    <span id="fav-footer-count">0 та сўз</span>
+    <button class="fav-clear" onclick="clearFavs()">Барчасини ўчириш</button>
+  </div>
+</div>
+
 </div><!-- .app -->
 
 <script>
@@ -552,6 +705,7 @@ function disp(s){return script==='lat'?c2l(s||''):(s||'')}
 
 function setScript(s){
   script=s;
+  activeAlpha=null;
   document.getElementById('script-seg').querySelectorAll('button').forEach((b,i)=>b.classList.toggle('active',(i===0&&s==='cyr')||(i===1&&s==='lat')));
   document.getElementById('search').placeholder=lang==='ru'?'Поиск на русском...':(s==='lat'?"So'z qidiring...":'Сўз қидиринг...');
   buildAlpha();render();
@@ -617,19 +771,31 @@ function buildFiltered(){
 
 function entryHTML(e,q){
   const i=e._i,w=disp(e.word),d=disp(e.def),ru=e.ru||'';
-  return`<div class="entry${e._deleted?' deleted':''}" id="entry-${i}">
+  const isFav=favs.has(e.word);
+  const longDef=d.length>180;
+  return`<div class="entry${e._deleted?' deleted':''}" id="entry-${i}" onclick="expandEntry(event,${i})">
   <div class="entry-left">
-    <div class="entry-word" id="word-${i}">${hl(w,lang==='uz'?q:'')}</div>
+    <div style="display:flex;align-items:center;gap:6px">
+      <div class="entry-word" id="word-${i}">${hl(w,lang==='uz'?q:'')}</div>
+      <button class="fav-btn${isFav?' active':''}" id="fav-${i}" onclick="event.stopPropagation();toggleFav(${i})" title="Сақлаш">★</button>
+    </div>
     <div class="entry-ru${ru?'':' empty'}" id="ru-${i}">${ru?hl(ru,lang==='ru'?q:''):'—'}</div>
   </div>
-  <div class="entry-def" id="def-${i}">${hl(d,lang==='uz'?q:'')}</div>
+  <div>
+    <div class="entry-def${longDef?' clipped':' short'}" id="def-${i}">${hl(d,lang==='uz'?q:'')}</div>
+    ${longDef?`<div class="expand-hint" id="hint-${i}" onclick="event.stopPropagation();expandEntry(event,${i})">Тўлиқ кўрсатиш ↓</div>`:''}
+  </div>
   <div class="entry-actions">
+    <button class="act" onclick="event.stopPropagation();copyEntry(${i})" title="Нусхалаш">
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      Нусха
+    </button>
     ${e._deleted
-      ?`<button class="act restore" onclick="restoreEntry(${i})">↩ Тиклаш</button>`
-      :`<button class="act" onclick="openEditor(${i},'ru')">РУ</button>
-        <button class="act" onclick="openEditor(${i},'def')">Изоҳ</button>
-        <button class="act" onclick="openEditor(${i},'word')">Сўз</button>
-        <button class="act danger" onclick="deleteEntry(${i})">✕</button>`
+      ?`<button class="act restore" onclick="event.stopPropagation();restoreEntry(${i})">↩ Тиклаш</button>`
+      :editMode?`<button class="act" onclick="event.stopPropagation();openEditor(${i},'ru')">РУ</button>
+        <button class="act" onclick="event.stopPropagation();openEditor(${i},'def')">Изоҳ</button>
+        <button class="act" onclick="event.stopPropagation();openEditor(${i},'word')">Сўз</button>
+        <button class="act danger" onclick="event.stopPropagation();deleteEntry(${i})">✕</button>`:''
     }
   </div>
   <div class="inline-editor" id="ied-${i}"></div>
@@ -771,6 +937,7 @@ async function load(){
     document.getElementById('h-count').textContent=entries.length.toLocaleString()+' сўз';
     document.getElementById('btn-ru').disabled=!entries.some(e=>e.ru);
     status.classList.remove('show');
+    loadFavs();
     buildAlpha();
     applyURL();
     if(!document.getElementById('search').value) render();
@@ -779,6 +946,97 @@ async function load(){
     document.getElementById('pf').style.background='#dc2626';
     document.getElementById('pf').style.width='100%';
   }
+}
+
+// ── FAVORITES ────────────────────────────────────────────────────
+const FAV_KEY = 'lugat_favs';
+let favs = new Set();
+
+function loadFavs() {
+  try { favs = new Set(JSON.parse(localStorage.getItem(FAV_KEY)) || []); } catch { favs = new Set(); }
+  updateFavCount();
+}
+function saveFavs() {
+  try { localStorage.setItem(FAV_KEY, JSON.stringify([...favs])); } catch {}
+  updateFavCount();
+}
+function updateFavCount() {
+  const n = favs.size;
+  const el = document.getElementById('fav-count');
+  if (el) { el.textContent = n; el.classList.toggle('show', n > 0); }
+}
+function toggleFav(i) {
+  const word = entries[i].word;
+  if (favs.has(word)) favs.delete(word);
+  else favs.add(word);
+  saveFavs();
+  const btn = document.getElementById(`fav-${i}`);
+  if (btn) btn.classList.toggle('active', favs.has(word));
+  if (document.getElementById('fav-panel').classList.contains('open')) renderFavPanel();
+}
+function toggleFavPanel() {
+  const panel = document.getElementById('fav-panel');
+  panel.classList.toggle('open');
+  if (panel.classList.contains('open')) renderFavPanel();
+}
+function renderFavPanel() {
+  const list = document.getElementById('fav-list');
+  const favEntries = entries.filter(e => favs.has(e.word));
+  document.getElementById('fav-footer-count').textContent = `${favEntries.length} та сўз`;
+  if (!favEntries.length) {
+    list.innerHTML = '<div class="fav-empty">Ҳали ҳеч нарса сақланмаган.<br>★ тугмасини босинг.</div>';
+    return;
+  }
+  list.innerHTML = favEntries.map(e => `
+    <div class="fav-entry" onclick="jumpToWord('${esc(e.word)}')">
+      <div class="fav-entry-word">${esc(disp(e.word))}</div>
+      ${e.ru ? `<div class="fav-entry-ru">${esc(e.ru)}</div>` : ''}
+    </div>`).join('');
+}
+function clearFavs() {
+  if (!confirm('Барча сақланган сўзларни ўчириш?')) return;
+  favs.clear(); saveFavs();
+  document.querySelectorAll('.fav-btn.active').forEach(b => b.classList.remove('active'));
+  renderFavPanel();
+}
+function jumpToWord(word) {
+  toggleFavPanel();
+  const inp = document.getElementById('search');
+  inp.value = word;
+  render();
+  setTimeout(() => {
+    const idx = entries.findIndex(e => e.word === word);
+    if (idx >= 0) {
+      const el = document.getElementById(`entry-${idx}`);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, 200);
+}
+
+// ── EXPAND ENTRY ─────────────────────────────────────────────────
+function expandEntry(event, i) {
+  if (event.target.closest('.entry-actions') || event.target.closest('.inline-editor') || event.target.closest('.fav-btn')) return;
+  const el = document.getElementById(`entry-${i}`);
+  if (!el) return;
+  const isExpanded = el.classList.contains('expanded');
+  el.classList.toggle('expanded', !isExpanded);
+  const hint = document.getElementById(`hint-${i}`);
+  if (hint) hint.textContent = isExpanded ? 'Тўлиқ кўрсатиш ↓' : 'Ёпиш ↑';
+}
+
+// ── COPY ENTRY ───────────────────────────────────────────────────
+let toastTimer = null;
+function copyEntry(i) {
+  const e = entries[i];
+  const text = `${disp(e.word)}${e.ru ? ' — ' + e.ru : ''}\n${disp(e.def)}`;
+  navigator.clipboard.writeText(text).then(() => showToast('Нусхаланди ✓')).catch(() => showToast('Хато'));
+}
+function showToast(msg) {
+  const t = document.getElementById('copy-toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
 }
 
 // ── SEARCH HISTORY ──────────────────────────────────────────────
