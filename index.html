@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ўзбек луғати</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #fafafa;
+  --surface: #ffffff;
+  --surface2: #f4f4f5;
+  --surface3: #e4e4e7;
+  --text: #09090b;
+  --text2: #52525b;
+  --text3: #a1a1aa;
+  --accent: #18181b;
+  --accent-fg: #ffffff;
+  --blue: #2563eb;
+  --blue-bg: #eff6ff;
+  --blue-text: #1d4ed8;
+  --green: #16a34a;
+  --green-bg: #f0fdf4;
+  --amber: #d97706;
+  --amber-bg: #fffbeb;
+  --red: #dc2626;
+  --red-bg: #fef2f2;
+  --hl: #fef08a;
+  --border: #e4e4e7;
+  --border2: #d4d4d8;
+  --r: 8px;
+  --r-lg: 12px;
+  --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,.07), 0 2px 4px -1px rgba(0,0,0,.04);
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── LAYOUT ── */
+.app { display: grid; grid-template-rows: auto auto auto 1fr; min-height: 100vh; }
+
+/* ── TOPBAR ── */
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+  flex-shrink: 0;
+}
+.brand-icon {
+  width: 28px; height: 28px;
+  background: var(--accent);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; color: #fff; font-weight: 600;
+  letter-spacing: -.5px;
+  flex-shrink: 0;
+}
+.brand-name {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -.3px;
+  color: var(--text);
+}
+.brand-count {
+  font-size: 11px;
+  color: var(--text3);
+  font-weight: 400;
+  padding: 2px 7px;
+  background: var(--surface2);
+  border-radius: 20px;
+  border: 1px solid var(--border);
+}
+
+.topbar-right { display: flex; align-items: center; gap: 8px; }
+
+.seg {
+  display: flex;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 3px;
+  gap: 2px;
+}
+.seg button {
+  padding: 4px 10px;
+  border: none;
+  background: transparent;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all .12s;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.seg button.active {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+.seg button:disabled { opacity: .35; cursor: default; }
+
+.icon-btn {
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  background: var(--surface);
+  color: var(--text2);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 5px;
+  transition: all .12s;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.icon-btn:hover { border-color: var(--border2); background: var(--surface2); color: var(--text); }
+.icon-btn.edit-active { background: var(--amber-bg); border-color: var(--amber); color: var(--amber); }
+
+/* ── SEARCH BAR ── */
+.searchbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 24px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.search-wrap {
+  flex: 1;
+  position: relative;
+  max-width: 640px;
+}
+.search-icon {
+  position: absolute;
+  left: 11px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--text3);
+  pointer-events: none;
+}
+#search {
+  width: 100%;
+  height: 36px;
+  padding: 0 12px 0 34px;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  background: var(--surface2);
+  color: var(--text);
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color .15s, background .15s, box-shadow .15s;
+}
+#search:focus {
+  border-color: var(--blue);
+  background: var(--surface);
+  box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+}
+#search::placeholder { color: var(--text3); }
+.result-badge {
+  font-size: 12px;
+  color: var(--text3);
+  white-space: nowrap;
+  font-weight: 500;
+  min-width: 80px;
+  text-align: right;
+}
+
+/* ── ALPHA BAR ── */
+.alphabar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  height: 36px;
+  flex-shrink: 0;
+}
+.alphabar::-webkit-scrollbar { display: none; }
+.alpha-btn {
+  height: 26px;
+  min-width: 28px;
+  padding: 0 7px;
+  border: none;
+  background: transparent;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text3);
+  cursor: pointer;
+  transition: all .1s;
+  font-family: 'JetBrains Mono', monospace;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.alpha-btn:hover { background: var(--surface2); color: var(--text2); }
+.alpha-btn.active { background: var(--accent); color: #fff; }
+.alpha-divider { width: 1px; height: 16px; background: var(--border); margin: 0 4px; flex-shrink: 0; }
+
+/* ── EDIT BANNER ── */
+.edit-banner {
+  display: none;
+  background: var(--amber-bg);
+  border-bottom: 1px solid #fcd34d;
+  padding: 8px 24px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--amber);
+}
+.edit-banner.show { display: flex; }
+.edit-banner strong { font-weight: 600; }
+.banner-btns { display: flex; gap: 6px; }
+.banner-btn {
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid;
+  transition: opacity .12s;
+}
+.banner-btn:hover { opacity: .85; }
+.banner-btn.primary { background: var(--amber); color: #fff; border-color: var(--amber); }
+.banner-btn.secondary { background: transparent; color: var(--amber); border-color: #fcd34d; }
+.banner-btn:disabled { opacity: .4; cursor: default; }
+
+/* ── STATUS ── */
+.status-bar {
+  display: none;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 24px;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--text2);
+}
+.status-bar.show { display: flex; }
+.progress-track { flex: 1; max-width: 200px; height: 2px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--blue); border-radius: 2px; transition: width .2s; width: 0; }
+
+/* ── MAIN CONTENT ── */
+#main {
+  max-width: 860px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 0 24px 80px;
+}
+
+/* ── LETTER GROUP ── */
+.letter-group { margin-top: 28px; }
+.letter-head {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text3);
+  font-family: 'JetBrains Mono', monospace;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0;
+}
+
+/* ── ENTRY ── */
+.entry {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  border-bottom: 1px solid var(--border);
+  padding: 12px 0;
+  gap: 0;
+  transition: background .08s;
+  position: relative;
+}
+.entry:hover { background: var(--surface2); margin: 0 -12px; padding: 12px 12px; border-radius: 0; }
+.entry.deleted { opacity: .3; }
+.entry.deleted .entry-word { text-decoration: line-through; }
+
+.entry-left { padding-right: 20px; }
+.entry-word {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.4;
+  letter-spacing: -.1px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.entry-ru {
+  font-size: 12px;
+  color: var(--blue-text);
+  margin-top: 3px;
+  font-weight: 400;
+}
+.entry-ru.empty { color: var(--text3); }
+.entry-def {
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.65;
+  padding-top: 1px;
+}
+
+/* ── EDIT MODE ENTRY ACTIONS ── */
+.entry-actions {
+  display: none;
+  position: absolute;
+  top: 8px; right: 0;
+  flex-direction: column;
+  gap: 3px;
+}
+.edit-mode .entry-actions { display: flex; }
+.entry:hover .entry-actions { display: flex; }
+
+.act {
+  height: 22px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--text2);
+  font-size: 11px;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .1s;
+}
+.act:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-bg); }
+.act.danger:hover { border-color: var(--red); color: var(--red); background: var(--red-bg); }
+.act.restore:hover { border-color: var(--green); color: var(--green); background: var(--green-bg); }
+
+/* ── INLINE EDITOR ── */
+.inline-editor {
+  display: none;
+  grid-column: 1 / -1;
+  margin-top: 8px;
+  background: var(--surface);
+  border: 1px solid var(--blue);
+  border-radius: var(--r);
+  padding: 12px;
+  box-shadow: 0 0 0 3px rgba(37,99,235,.08);
+}
+.inline-editor.show { display: block; }
+.ie-label { font-size: 11px; font-weight: 500; color: var(--text3); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .05em; }
+.ie-input {
+  width: 100%;
+  font-size: 13px;
+  font-family: inherit;
+  padding: 7px 10px;
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  color: var(--text);
+  background: var(--surface2);
+  outline: none;
+  resize: vertical;
+  line-height: 1.5;
+}
+.ie-input:focus { border-color: var(--blue); background: var(--surface); }
+.ie-input.mono { font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+.ie-actions { display: flex; gap: 6px; margin-top: 8px; }
+.ie-ok { height: 28px; padding: 0 14px; background: var(--blue); color: #fff; border: none; border-radius: 6px; font-size: 12px; font-family: inherit; font-weight: 500; cursor: pointer; }
+.ie-ok:hover { opacity: .9; }
+.ie-cancel { height: 28px; padding: 0 12px; background: transparent; border: 1px solid var(--border2); border-radius: 6px; font-size: 12px; font-family: inherit; color: var(--text2); cursor: pointer; }
+.ie-cancel:hover { background: var(--surface2); }
+
+/* ── HIGHLIGHT ── */
+mark { background: var(--hl); color: var(--text); border-radius: 2px; padding: 0 1px; }
+
+/* ── EMPTY / LOADING ── */
+.empty-state {
+  text-align: center;
+  padding: 60px 24px;
+  color: var(--text3);
+}
+.empty-state .empty-icon { font-size: 32px; margin-bottom: 12px; }
+.empty-state p { font-size: 14px; }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 10px; }
+
+/* ── MOBILE ── */
+@media (max-width: 640px) {
+  .topbar { padding: 0 16px; height: 48px; }
+  .brand-name { display: none; }
+  .searchbar { padding: 10px 16px; }
+  .alphabar { padding: 0 16px; }
+  #main { padding: 0 16px 60px; }
+  .entry { grid-template-columns: 1fr; }
+  .entry-left { padding-right: 0; margin-bottom: 4px; }
+  .edit-banner { padding: 8px 16px; }
+  .entry-actions { position: static; flex-direction: row; flex-wrap: wrap; margin-top: 6px; grid-column: 1/-1; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-icon">Ўз</div>
+    <span class="brand-name">Ўзбек луғати</span>
+    <span class="brand-count" id="h-count">—</span>
+  </div>
+  <div class="topbar-right">
+    <div class="seg" id="script-seg">
+      <button class="active" onclick="setScript('cyr')">Кирилл</button>
+      <button onclick="setScript('lat')">Latin</button>
+    </div>
+    <div class="seg" id="lang-seg">
+      <button class="active" onclick="setLang('uz')">Ўзбек</button>
+      <button id="btn-ru" onclick="setLang('ru')">Рус</button>
+    </div>
+    <button class="icon-btn" id="edit-btn" onclick="toggleEdit()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      Таҳрир
+    </button>
+  </div>
+</header>
+
+<!-- SEARCH -->
+<div class="searchbar">
+  <div class="search-wrap">
+    <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="search" id="search" placeholder="Сўз қидиринг..." autocomplete="off" spellcheck="false"/>
+  </div>
+  <span class="result-badge" id="rc"></span>
+</div>
+
+<!-- ALPHA BAR -->
+<nav class="alphabar" id="alpha-bar"></nav>
+
+<!-- EDIT BANNER -->
+<div class="edit-banner" id="edit-banner">
+  <span><strong>Таҳрир режими</strong> — сўзни, изоҳни ёки таржимани тузатинг</span>
+  <div class="banner-btns">
+    <span id="change-count" style="font-size:11px;opacity:.7"></span>
+    <button class="banner-btn secondary" id="patch-btn" onclick="exportPatch()" disabled>Патч юклаш</button>
+    <button class="banner-btn primary" onclick="exportJSON()">JSON юклаш</button>
+  </div>
+</div>
+
+<!-- STATUS -->
+<div class="status-bar" id="status">
+  <span id="status-txt">Юкланмоқда...</span>
+  <div class="progress-track"><div class="progress-fill" id="pf"></div></div>
+</div>
+
+<!-- MAIN -->
+<main id="main">
+  <div class="empty-state">
+    <div class="empty-icon">📖</div>
+    <p>Юкланмоқда...</p>
+  </div>
+</main>
+
+</div><!-- .app -->
+
+<script>
+const CYR_MAP=[['Ё','Yo'],['ё','yo'],['Ю','Yu'],['ю','yu'],['Я','Ya'],['я','ya'],['Ж','J'],['ж','j'],['Х','X'],['х','x'],['Ц','Ts'],['ц','ts'],['Ч','Ch'],['ч','ch'],['Ш','Sh'],['ш','sh'],['Щ','Sh'],['щ','sh'],['Ъ',"'"],['ъ',"'"],['Ь',''],['ь',''],['А','A'],['а','a'],['Б','B'],['б','b'],['В','V'],['в','v'],['Г','G'],['г','g'],['Д','D'],['д','d'],['Е','E'],['е','e'],['З','Z'],['з','z'],['И','I'],['и','i'],['Й','Y'],['й','y'],['К','K'],['к','k'],['Л','L'],['л','l'],['М','M'],['м','m'],['Н','N'],['н','n'],['О','O'],['о','o'],['П','P'],['п','p'],['Р','R'],['р','r'],['С','S'],['с','s'],['Т','T'],['т','t'],['У','U'],['у','u'],['Ф','F'],['ф','f'],['Э','E'],['э','e'],['Ғ',"G'"],['ғ',"g'"],['Ҳ','H'],['ҳ','h'],['Қ','Q'],['қ','q'],['Ў',"O'"],['ў',"o'"]];
+const UZ_CYR=['А','Б','В','Г','Д','Е','Ж','З','И','Й','К','Л','М','Н','О','П','Р','С','Т','У','Ф','Х','Ч','Ш','Э','Ю','Я','Ғ','Қ','Ҳ','Ў'];
+const UZ_LAT=['A','B','D','E','F','G',"G'",'H','I','J','K','L','M','N','O',"O'",'Q','R','S','T','U','V','X','Y','Z'];
+const RU_AL=['А','Б','В','Г','Д','Е','Ж','З','И','К','Л','М','Н','О','П','Р','С','Т','У','Ф','Х','Ц','Ч','Ш','Э','Ю','Я'];
+
+let entries=[], script='cyr', lang='uz', activeAlpha=null, editMode=false, changes=0, timer=null;
+let filteredCache=[], pageSize=100, observer=null;
+const patches={};
+
+function c2l(s){let r=s;for(const[c,l]of CYR_MAP)r=r.split(c).join(l);return r}
+function disp(s){return script==='lat'?c2l(s||''):(s||'')}
+
+function setScript(s){
+  script=s;
+  document.getElementById('script-seg').querySelectorAll('button').forEach((b,i)=>b.classList.toggle('active',(i===0&&s==='cyr')||(i===1&&s==='lat')));
+  document.getElementById('search').placeholder=lang==='ru'?'Поиск на русском...':(s==='lat'?"So'z qidiring...":'Сўз қидиринг...');
+  buildAlpha();render();
+}
+function setLang(l){
+  lang=l;
+  document.getElementById('lang-seg').querySelectorAll('button').forEach((b,i)=>b.classList.toggle('active',(i===0&&l==='uz')||(i===1&&l==='ru')));
+  document.getElementById('search').placeholder=l==='ru'?'Поиск на русском...':(script==='lat'?"So'z qidiring...":'Сўз қидиринг...');
+  activeAlpha=null;buildAlpha();render();
+}
+function toggleEdit(){
+  editMode=!editMode;
+  const btn=document.getElementById('edit-btn');
+  btn.classList.toggle('edit-active',editMode);
+  btn.innerHTML=editMode
+    ?`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg> Ёпиш`
+    :`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Таҳрир`;
+  document.getElementById('edit-banner').classList.toggle('show',editMode);
+  document.getElementById('main').classList.toggle('edit-mode',editMode);
+  render();
+}
+
+function buildAlpha(){
+  const bar=document.getElementById('alpha-bar');
+  const letters=lang==='ru'?RU_AL:(script==='lat'?UZ_LAT:UZ_CYR);
+  bar.innerHTML='';
+  const all=document.createElement('button');
+  all.className='alpha-btn'+(activeAlpha?'':' active');
+  all.textContent=script==='lat'?'All':'Бар';
+  all.onclick=()=>{activeAlpha=null;buildAlpha();render();};
+  bar.appendChild(all);
+  const div=document.createElement('div');
+  div.className='alpha-divider';
+  bar.appendChild(div);
+  for(const l of letters){
+    const b=document.createElement('button');
+    b.className='alpha-btn'+(activeAlpha===l?' active':'');
+    b.textContent=l;
+    b.onclick=()=>{activeAlpha=l;buildAlpha();render();};
+    bar.appendChild(b);
+  }
+}
+
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function hl(t,q){if(!q)return esc(t);const e=q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');return esc(t).replace(new RegExp(`(${e})`,'gi'),'<mark>$1</mark>')}
+function render(){clearTimeout(timer);timer=setTimeout(_render,80)}
+
+function buildFiltered(){
+  const q=document.getElementById('search').value.trim().toLowerCase();
+  let f=entries.map((e,i)=>({...e,_i:i})).filter(e=>{
+    if(lang==='ru')return(e.ru||'').toLowerCase().includes(q);
+    const w=disp(e.word).toLowerCase(),d=disp(e.def).toLowerCase(),ql=c2l(q);
+    return w.includes(q)||d.includes(q)||w.includes(ql)||d.includes(ql);
+  });
+  if(activeAlpha){
+    f=f.filter(e=>{
+      const src=lang==='ru'?(e.ru||'').charAt(0).toUpperCase():disp(e.word).charAt(0).toUpperCase();
+      return src===activeAlpha;
+    });
+  }
+  return f;
+}
+
+function entryHTML(e,q){
+  const i=e._i,w=disp(e.word),d=disp(e.def),ru=e.ru||'';
+  return`<div class="entry${e._deleted?' deleted':''}" id="entry-${i}">
+  <div class="entry-left">
+    <div class="entry-word" id="word-${i}">${hl(w,lang==='uz'?q:'')}</div>
+    <div class="entry-ru${ru?'':' empty'}" id="ru-${i}">${ru?hl(ru,lang==='ru'?q:''):'—'}</div>
+  </div>
+  <div class="entry-def" id="def-${i}">${hl(d,lang==='uz'?q:'')}</div>
+  <div class="entry-actions">
+    ${e._deleted
+      ?`<button class="act restore" onclick="restoreEntry(${i})">↩ Тиклаш</button>`
+      :`<button class="act" onclick="openEditor(${i},'ru')">РУ</button>
+        <button class="act" onclick="openEditor(${i},'def')">Изоҳ</button>
+        <button class="act" onclick="openEditor(${i},'word')">Сўз</button>
+        <button class="act danger" onclick="deleteEntry(${i})">✕</button>`
+    }
+  </div>
+  <div class="inline-editor" id="ied-${i}"></div>
+</div>`;
+}
+
+function renderPage(filtered,page,q,append){
+  const main=document.getElementById('main');
+  const start=page*pageSize,end=start+pageSize;
+  const slice=filtered.slice(start,end);
+  if(!slice.length)return;
+  const grouped={};
+  for(const e of slice){
+    const l=lang==='ru'?(e.ru||'?').charAt(0).toUpperCase():disp(e.word).charAt(0).toUpperCase();
+    if(!grouped[l])grouped[l]=[];
+    grouped[l].push(e);
+  }
+  let html='';
+  for(const letter of Object.keys(grouped).sort((a,b)=>a.localeCompare(b,'uz'))){
+    const firstIdx=filtered.findIndex(e=>{
+      const l=lang==='ru'?(e.ru||'?').charAt(0).toUpperCase():disp(e.word).charAt(0).toUpperCase();
+      return l===letter;
+    });
+    if(firstIdx>=start&&firstIdx<end){
+      html+=`<div class="letter-group" id="lg-${letter}"><div class="letter-head">${esc(letter)}</div>`;
+    } else {
+      const ex=document.getElementById(`lg-${letter}`);
+      if(ex){for(const e of grouped[letter])ex.insertAdjacentHTML('beforeend',entryHTML(e,q));continue;}
+      html+=`<div class="letter-group" id="lg-${letter}">`;
+    }
+    for(const e of grouped[letter])html+=entryHTML(e,q);
+    html+='</div>';
+  }
+  const sentinel=document.getElementById('scroll-sentinel');
+  if(sentinel)sentinel.remove();
+  if(append)main.insertAdjacentHTML('beforeend',html);
+  else main.innerHTML=html;
+  if(end<filtered.length){
+    main.insertAdjacentHTML('beforeend','<div id="scroll-sentinel" style="height:60px"></div>');
+    if(observer)observer.disconnect();
+    const s=document.getElementById('scroll-sentinel');
+    observer=new IntersectionObserver(es=>{
+      if(es[0].isIntersecting){observer.disconnect();renderPage(filtered,page+1,q,true);}
+    },{rootMargin:'300px'});
+    observer.observe(s);
+  }
+}
+
+function _render(){
+  const main=document.getElementById('main');
+  const q=document.getElementById('search').value.trim().toLowerCase();
+  if(observer){observer.disconnect();observer=null;}
+  filteredCache=buildFiltered();
+  const total=filteredCache.length;
+  document.getElementById('rc').textContent=total?`${total.toLocaleString()} натижа`:'';
+  if(!filteredCache.length){
+    main.innerHTML='<div class="empty-state"><div class="empty-icon">🔍</div><p>Ҳеч нарса топилмади</p></div>';
+    return;
+  }
+  main.innerHTML='';
+  renderPage(filteredCache,0,q,false);
+}
+
+function openEditor(i,field){
+  document.querySelectorAll('.inline-editor.show').forEach(el=>{if(el.id!==`ied-${i}`)el.classList.remove('show');});
+  const box=document.getElementById(`ied-${i}`);
+  const e=entries[i];
+  const label=field==='ru'?'Рус таржимаси':field==='def'?'Изоҳ':'Сўз';
+  const val=field==='ru'?(e.ru||''):e[field];
+  const isTa=field==='def';
+  box.innerHTML=`
+    <div class="ie-label">${label}</div>
+    ${isTa?`<textarea class="ie-input" id="ie-val-${i}" rows="4">${esc(val)}</textarea>`
+           :`<input class="ie-input mono" id="ie-val-${i}" type="text" value="${esc(val)}">`}
+    <div class="ie-actions">
+      <button class="ie-ok" onclick="saveField(${i},'${field}')">Сақлаш</button>
+      <button class="ie-cancel" onclick="closeEditor(${i})">Бекор</button>
+    </div>`;
+  box.classList.add('show');
+  const inp=document.getElementById(`ie-val-${i}`);
+  inp.focus();
+  if(inp.setSelectionRange)inp.setSelectionRange(inp.value.length,inp.value.length);
+  inp.addEventListener('keydown',ev=>{
+    if(ev.key==='Escape')closeEditor(i);
+    if(ev.key==='Enter'&&!isTa)saveField(i,field);
+  });
+}
+function closeEditor(i){const b=document.getElementById(`ied-${i}`);if(b)b.classList.remove('show');}
+function saveField(i,field){
+  const inp=document.getElementById(`ie-val-${i}`);if(!inp)return;
+  const val=inp.value.trim();
+  entries[i][field]=val;
+  recordPatch(i);closeEditor(i);
+  if(field==='ru'){const el=document.getElementById(`ru-${i}`);if(el){el.textContent=val||'—';el.className='entry-ru'+(val?'':' empty');}}
+  else if(field==='def'){const el=document.getElementById(`def-${i}`);if(el)el.textContent=val;}
+  else if(field==='word'){const el=document.getElementById(`word-${i}`);if(el)el.textContent=disp(val);}
+}
+function recordPatch(i){
+  const e=entries[i];
+  patches[e.word]={word:e.word,def:e.def,ru:e.ru||'',_deleted:e._deleted||false};
+  changes++;
+  document.getElementById('change-count').textContent=`${changes} ўзгариш`;
+  const pb=document.getElementById('patch-btn');
+  pb.disabled=false;
+}
+function deleteEntry(i){
+  entries[i]._deleted=true;recordPatch(i);
+  const el=document.getElementById(`entry-${i}`);
+  if(el){el.classList.add('deleted');const a=el.querySelector('.entry-actions');if(a)a.innerHTML=`<button class="act restore" onclick="restoreEntry(${i})">↩ Тиклаш</button>`;}
+}
+function restoreEntry(i){entries[i]._deleted=false;recordPatch(i);render();}
+
+function exportPatch(){
+  const list=Object.values(patches);
+  if(!list.length){alert('Ўзгаришлар йўқ.');return;}
+  dl(JSON.stringify({created:new Date().toISOString(),count:list.length,patches:list},null,2),`lugat_patch_${new Date().toISOString().slice(0,10)}.json`);
+}
+function exportJSON(){
+  dl(JSON.stringify(entries.filter(e=>!e._deleted).map(e=>({word:e.word,def:e.def,ru:e.ru||''})),null,2),'dictionary_enriched.json');
+}
+function dl(content,name){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([content],{type:'application/json'}));
+  a.download=name;a.click();URL.revokeObjectURL(a.href);
+}
+
+async function load(){
+  const status=document.getElementById('status');
+  status.classList.add('show');
+  try{
+    let resp=await fetch('dictionary_enriched.json');
+    document.getElementById('pf').style.width='40%';
+    if(!resp.ok)resp=await fetch('dictionary_parsed.json');
+    document.getElementById('pf').style.width='80%';
+    const raw=await resp.json();
+    entries=Array.isArray(raw)?raw:Object.values(raw);
+    document.getElementById('pf').style.width='100%';
+    document.getElementById('h-count').textContent=entries.length.toLocaleString()+' сўз';
+    document.getElementById('btn-ru').disabled=!entries.some(e=>e.ru);
+    status.classList.remove('show');
+    buildAlpha();render();
+  }catch(err){
+    document.getElementById('status-txt').textContent='Хато: '+err.message;
+    document.getElementById('pf').style.background='#dc2626';
+    document.getElementById('pf').style.width='100%';
+  }
+}
+
+document.getElementById('search').addEventListener('input',render);
+load();
+</script>
+</body>
+</html>
