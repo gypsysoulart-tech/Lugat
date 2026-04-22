@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ўзбек луғати</title>
+<title>O'zbek lug'ati</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
@@ -241,6 +241,7 @@ body {
   padding: 0 24px;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 1px;
   overflow-x: auto;
   scrollbar-width: none;
@@ -662,13 +663,70 @@ mark { background: var(--hl); color: var(--text); border-radius: 2px; padding: 0
 @media (max-width: 640px) {
   .topbar { padding: 0 16px; height: 48px; }
   .brand-name { display: none; }
+  .topbar-right { display: none; }
   .searchbar { padding: 10px 16px; }
   .alphabar { padding: 0 16px; }
-  #main { padding: 0 16px 60px; }
+  #main { padding: 0 16px 80px; }
   .entry { grid-template-columns: 1fr; }
   .entry-left { padding-right: 0; margin-bottom: 4px; }
-  .edit-banner { padding: 8px 16px; }
+  .edit-banner { padding: 8px 16px; flex-direction: column; gap: 6px; }
   .entry-actions { position: static; flex-direction: row; flex-wrap: wrap; margin-top: 6px; grid-column: 1/-1; }
+  .fav-panel { width: 100%; border-left: none; border-top: 1px solid var(--border); }
+  .settings-panel { right: 8px; left: 8px; width: auto; top: auto; bottom: 70px; }
+  .copy-toast { bottom: 80px; }
+}
+
+/* ── BOTTOM NAV (mobile only) ── */
+.bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 56px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  z-index: 300;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 8px;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.bn-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 6px 0;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: var(--text3);
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 500;
+  transition: color .12s;
+  border-radius: var(--r);
+  position: relative;
+}
+.bn-item.active { color: var(--blue); }
+.bn-item svg { width: 20px; height: 20px; }
+.bn-badge {
+  position: absolute;
+  top: 4px; right: calc(50% - 18px);
+  background: var(--amber);
+  color: #fff;
+  border-radius: 10px;
+  padding: 0 5px;
+  font-size: 9px;
+  min-width: 16px;
+  text-align: center;
+  display: none;
+}
+.bn-badge.show { display: block; }
+
+@media (max-width: 640px) {
+  .bottom-nav { display: flex; }
 }
 </style>
 </head>
@@ -679,20 +737,20 @@ mark { background: var(--hl); color: var(--text); border-radius: 2px; padding: 0
 <header class="topbar">
   <div class="brand">
     <div class="brand-icon">Ўз</div>
-    <span class="brand-name">Ўзбек луғати</span>
+    <span class="brand-name">O'zbek lug'ati</span>
     <span class="brand-count" id="h-count">—</span>
   </div>
   <div class="topbar-right">
     <div class="seg" id="script-seg">
-      <button class="active" onclick="setScript('cyr')">Кирилл</button>
-      <button onclick="setScript('lat')">Lotin</button>
+      <button class="active" onclick="setScript('lat')">Lotin</button>
+      <button onclick="setScript('cyr')">Кирилл</button>
     </div>
     <div class="seg" id="lang-seg">
-      <button class="active" onclick="setLang('uz')">Ўзбек</button>
-      <button id="btn-ru" onclick="setLang('ru')">Рус</button>
+      <button class="active" onclick="setLang('uz')">O'zbek</button>
+      <button id="btn-ru" onclick="setLang('ru')">Rus</button>
     </div>
     <button class="fav-topbtn" onclick="toggleFavPanel()">
-      ★ Сақланган
+      ★ Saqlangan
       <span class="fav-count" id="fav-count">0</span>
     </button>
     <button class="icon-btn" id="settings-btn" onclick="toggleSettings()">
@@ -700,7 +758,7 @@ mark { background: var(--hl); color: var(--text); border-radius: 2px; padding: 0
     </button>
     <button class="icon-btn" id="edit-btn" onclick="toggleEdit()">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-      Таҳрир
+      Tahrir
     </button>
   </div>
 </header>
@@ -709,7 +767,7 @@ mark { background: var(--hl); color: var(--text); border-radius: 2px; padding: 0
 <div class="searchbar">
   <div class="search-wrap">
     <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-    <input type="search" id="search" placeholder="Сўз қидиринг..." autocomplete="off" spellcheck="false"/>
+    <input type="search" id="search" placeholder="So'z qidiring..." autocomplete="off" spellcheck="false"/>
     <div class="search-dropdown" id="search-dropdown"></div>
   </div>
   <span class="result-badge" id="rc"></span>
@@ -720,17 +778,17 @@ mark { background: var(--hl); color: var(--text); border-radius: 2px; padding: 0
 
 <!-- EDIT BANNER -->
 <div class="edit-banner" id="edit-banner">
-  <span><strong>Таҳрир режими</strong> — сўзни, изоҳни ёки таржимани тузатинг</span>
+  <span><strong>Tahrir rejimi</strong> — so'zni, izohni yoki tarjimani tuzating</span>
   <div class="banner-btns">
     <span id="change-count" style="font-size:11px;opacity:.7"></span>
-    <button class="banner-btn secondary" id="patch-btn" onclick="exportPatch()" disabled>Патч юклаш</button>
-    <button class="banner-btn primary" onclick="exportJSON()">JSON юклаш</button>
+    <button class="banner-btn secondary" id="patch-btn" onclick="exportPatch()" disabled>Patch yuklash</button>
+    <button class="banner-btn primary" onclick="exportJSON()">JSON yuklash</button>
   </div>
 </div>
 
 <!-- STATUS -->
 <div class="status-bar" id="status">
-  <span id="status-txt">Юкланмоқда...</span>
+  <span id="status-txt">Yuklanmoqda...</span>
   <div class="progress-track"><div class="progress-fill" id="pf"></div></div>
 </div>
 
@@ -738,22 +796,22 @@ mark { background: var(--hl); color: var(--text); border-radius: 2px; padding: 0
 <main id="main">
   <div class="empty-state">
     <div class="empty-icon">📖</div>
-    <p>Юкланмоқда...</p>
+    <p>Yuklanmoqda...</p>
   </div>
 </main>
 
 <!-- SETTINGS PANEL -->
 <div class="settings-panel" id="settings-panel">
   <div class="settings-section">
-    <span class="settings-label">Mavzu / Тема</span>
+    <span class="settings-label">Mavzu</span>
     <div class="settings-row">
-      <button class="settings-btn active" id="theme-light" onclick="setTheme('light')">☀ Ёруғ</button>
-      <button class="settings-btn" id="theme-dark" onclick="setTheme('dark')">☾ Қоронғи</button>
-      <button class="settings-btn" id="theme-system" onclick="setTheme('system')">⬡ Авто</button>
+      <button class="settings-btn active" id="theme-light" onclick="setTheme('light')">☀ Yorug'</button>
+      <button class="settings-btn" id="theme-dark" onclick="setTheme('dark')">☾ Qorongi</button>
+      <button class="settings-btn" id="theme-system" onclick="setTheme('system')">⬡ Avto</button>
     </div>
   </div>
   <div class="settings-section">
-    <span class="settings-label">Shrift hajmi / Ҳарф ўлчами</span>
+    <span class="settings-label">Shrift hajmi</span>
     <div class="settings-row">
       <button class="settings-btn" id="size-sm" onclick="setSize('sm')">A</button>
       <button class="settings-btn active" id="size-md" onclick="setSize('md')" style="font-size:14px">A</button>
@@ -761,30 +819,51 @@ mark { background: var(--hl); color: var(--text); border-radius: 2px; padding: 0
     </div>
   </div>
   <div class="settings-section">
-    <span class="settings-label">Zichlik / Зичлик</span>
+    <span class="settings-label">Zichlik</span>
     <div class="settings-row">
-      <button class="settings-btn" id="density-compact" onclick="setDensity('compact')">Ихчам</button>
-      <button class="settings-btn active" id="density-normal" onclick="setDensity('normal')">Меъёр</button>
-      <button class="settings-btn" id="density-comfortable" onclick="setDensity('comfortable')">Кенг</button>
+      <button class="settings-btn" id="density-compact" onclick="setDensity('compact')">Ixcham</button>
+      <button class="settings-btn active" id="density-normal" onclick="setDensity('normal')">Me'yor</button>
+      <button class="settings-btn" id="density-comfortable" onclick="setDensity('comfortable')">Keng</button>
     </div>
   </div>
 </div>
 
 <!-- COPY TOAST -->
-<div class="copy-toast" id="copy-toast">Нусхаланди</div>
+<div class="copy-toast" id="copy-toast">Nusxalandi</div>
 
 <!-- FAVORITES PANEL -->
 <div class="fav-panel" id="fav-panel">
   <div class="fav-header">
-    <h2>★ Сақланган сўзлар</h2>
+    <h2>★ Saqlangan so'zlar</h2>
     <button class="fav-close" onclick="toggleFavPanel()">✕</button>
   </div>
   <div class="fav-list" id="fav-list"></div>
   <div class="fav-footer">
-    <span id="fav-footer-count">0 та сўз</span>
-    <button class="fav-clear" onclick="clearFavs()">Барчасини ўчириш</button>
+    <span id="fav-footer-count">0 ta so'z</span>
+    <button class="fav-clear" onclick="clearFavs()">Barchasini o'chirish</button>
   </div>
 </div>
+
+<!-- BOTTOM NAV (mobile) -->
+<nav class="bottom-nav" id="bottom-nav">
+  <button class="bn-item active" id="bn-search" onclick="bnSearch()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    Qidiruv
+  </button>
+  <button class="bn-item" id="bn-alpha" onclick="bnAlpha()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+    Alifbo
+  </button>
+  <button class="bn-item" id="bn-favs" onclick="toggleFavPanel()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    <span class="bn-badge" id="bn-fav-badge">0</span>
+    Saqlangan
+  </button>
+  <button class="bn-item" id="bn-settings" onclick="toggleSettings()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    Sozlamalar
+  </button>
+</nav>
 
 </div><!-- .app -->
 
@@ -794,7 +873,7 @@ const UZ_CYR=['А','Б','В','Г','Д','Е','Ж','З','И','Й','К','Л','М','
 const UZ_LAT=['A','B','D','E','F','G',"G'",'H','I','J','K','L','M','N','O',"O'",'P','Q','R','S','T','U','V','X','Y','Z'];
 const RU_AL=['А','Б','В','Г','Д','Е','Ж','З','И','К','Л','М','Н','О','П','Р','С','Т','У','Ф','Х','Ц','Ч','Ш','Э','Ю','Я'];
 
-let entries=[], script='cyr', lang='uz', activeAlpha=null, editMode=false, changes=0, timer=null;
+let entries=[], script='lat', lang='uz', activeAlpha=null, editMode=false, changes=0, timer=null;
 let filteredCache=[], pageSize=100, observer=null;
 const patches={};
 
@@ -816,16 +895,14 @@ const LAT_TO_CYR_LETTER = {
 };
 
 function setScript(s){
-  // Map current active letter to equivalent in new script
   if(activeAlpha){
     const mapped = s==='lat'
       ? CYR_TO_LAT_LETTER[activeAlpha]
       : LAT_TO_CYR_LETTER[activeAlpha];
     activeAlpha = mapped || null;
   }
-
   script=s;
-  document.getElementById('script-seg').querySelectorAll('button').forEach((b,i)=>b.classList.toggle('active',(i===0&&s==='cyr')||(i===1&&s==='lat')));
+  document.getElementById('script-seg').querySelectorAll('button').forEach((b,i)=>b.classList.toggle('active',(i===0&&s==='lat')||(i===1&&s==='cyr')));
   document.getElementById('search').placeholder=lang==='ru'?'Поиск на русском...':(s==='lat'?"So'z qidiring...":'Сўз қидиринг...');
   buildAlpha();render();
 }
@@ -840,8 +917,8 @@ function toggleEdit(){
   const btn=document.getElementById('edit-btn');
   btn.classList.toggle('edit-active',editMode);
   btn.innerHTML=editMode
-    ?`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg> Ёпиш`
-    :`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Таҳрир`;
+    ?`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg> Yopish`
+    :`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Tahrir`;
   document.getElementById('edit-banner').classList.toggle('show',editMode);
   document.getElementById('main').classList.toggle('edit-mode',editMode);
   render();
@@ -892,33 +969,42 @@ function entryHTML(e,q){
   const i=e._i,w=disp(e.word),d=disp(e.def),ru=e.ru||'';
   const isFav=favs.has(e.word);
   const longDef=d.length>180;
-  return`<div class="entry${e._deleted?' deleted':''}" id="entry-${i}" onclick="expandEntry(event,${i})">
-  <div class="entry-left">
-    <div style="display:flex;align-items:center;gap:6px">
-      <div class="entry-word" id="word-${i}">${hl(w,lang==='uz'?q:'')}</div>
-      <button class="fav-btn${isFav?' active':''}" id="fav-${i}" onclick="event.stopPropagation();toggleFav(${i})" title="Сақлаш">★</button>
-    </div>
-    <div class="entry-ru${ru?'':' empty'}" id="ru-${i}">${ru?hl(ru,lang==='ru'?q:''):'—'}</div>
-  </div>
-  <div>
-    <div class="entry-def${longDef?' clipped':' short'}" id="def-${i}">${hl(d,lang==='uz'?q:'')}</div>
-    ${longDef?`<div class="expand-hint" id="hint-${i}" onclick="event.stopPropagation();expandEntry(event,${i})">Тўлиқ кўрсатиш ↓</div>`:''}
-  </div>
-  <div class="entry-actions">
-    <button class="act" onclick="event.stopPropagation();copyEntry(${i})" title="Нусхалаш">
-      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-      Нусха
-    </button>
-    ${e._deleted
-      ?`<button class="act restore" onclick="event.stopPropagation();restoreEntry(${i})">↩ Тиклаш</button>`
-      :editMode?`<button class="act" onclick="event.stopPropagation();openEditor(${i},'ru')">РУ</button>
-        <button class="act" onclick="event.stopPropagation();openEditor(${i},'def')">Изоҳ</button>
-        <button class="act" onclick="event.stopPropagation();openEditor(${i},'word')">Сўз</button>
-        <button class="act danger" onclick="event.stopPropagation();deleteEntry(${i})">✕</button>`:''
-    }
-  </div>
-  <div class="inline-editor" id="ied-${i}"></div>
-</div>`;
+  const expandBtn=longDef?'<div class="expand-hint" id="hint-'+i+'" onclick="event.stopPropagation();expandEntry(event,'+i+')">&#x25be; Ko&#39;proq</div>':'';
+  const favClass='fav-btn'+(isFav?' active':'');
+  const entryClass='entry'+(e._deleted?' deleted':'');
+  const defClass='entry-def'+(longDef?' clipped':' short');
+  const ruClass='entry-ru'+(ru?'':' empty');
+  let actions='';
+  if(e._deleted){
+    actions='<button class="act restore" onclick="event.stopPropagation();restoreEntry('+i+')">&#x21a9; Tiklash</button>';
+  } else if(editMode){
+    actions='<button class="act" onclick="event.stopPropagation();openEditor('+i+',\'ru\')">RU</button>'
+      +'<button class="act" onclick="event.stopPropagation();openEditor('+i+',\'def\')">Izoh</button>'
+      +'<button class="act" onclick="event.stopPropagation();openEditor('+i+',\'word\')">So&#39;z</button>'
+      +'<button class="act danger" onclick="event.stopPropagation();deleteEntry('+i+')">&#x2715;</button>';
+  }
+  actions='<button class="act" onclick="event.stopPropagation();copyEntry('+i+')" title="Nusxalash">'
+    +'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>'
+    +' Nusxa</button>'+(editMode?'<button class="act" onclick="event.stopPropagation();openEditor('+i+',\'ru\')">RU</button>'
+      +'<button class="act" onclick="event.stopPropagation();openEditor('+i+',\'def\')">Izoh</button>'
+      +'<button class="act" onclick="event.stopPropagation();openEditor('+i+',\'word\')">So&#39;z</button>'
+      +'<button class="act danger" onclick="event.stopPropagation();deleteEntry('+i+')">&#x2715;</button>':'');
+  if(e._deleted) actions='<button class="act restore" onclick="event.stopPropagation();restoreEntry('+i+')">&#x21a9; Tiklash</button>';
+  return '<div class="'+entryClass+'" id="entry-'+i+'" onclick="expandEntry(event,'+i+')">'
+    +'<div class="entry-left">'
+    +'<div style="display:flex;align-items:center;gap:6px">'
+    +'<div class="entry-word" id="word-'+i+'">'+hl(w,lang==='uz'?q:'')+'</div>'
+    +'<button class="'+favClass+'" id="fav-'+i+'" onclick="event.stopPropagation();toggleFav('+i+')" title="Saqlash">\u2605</button>'
+    +'</div>'
+    +'<div class="'+ruClass+'" id="ru-'+i+'">'+(ru?hl(ru,lang==='ru'?q:''): '\u2014')+'</div>'
+    +'</div>'
+    +'<div>'
+    +'<div class="'+defClass+'" id="def-'+i+'">'+hl(d,lang==='uz'?q:'')+'</div>'
+    +expandBtn
+    +'</div>'
+    +'<div class="entry-actions">'+actions+'</div>'
+    +'<div class="inline-editor" id="ied-'+i+'"></div>'
+    +'</div>';
 }
 
 function renderPage(filtered,page,q,append){
@@ -969,10 +1055,10 @@ function _render(){
   if(observer){observer.disconnect();observer=null;}
   filteredCache=buildFiltered();
   const total=filteredCache.length;
-  document.getElementById('rc').textContent=total?`${total.toLocaleString()} натижа`:'';
+  document.getElementById('rc').textContent=total?`${total.toLocaleString()} natija`:'';
   if(q.length>=2) maybeAddHistory(q);
   if(!filteredCache.length){
-    main.innerHTML='<div class="empty-state"><div class="empty-icon">🔍</div><p>Ҳеч нарса топилмади</p></div>';
+    main.innerHTML='<div class="empty-state"><div class="empty-icon">🔍</div><p>Hech narsa topilmadi</p></div>';
     return;
   }
   main.innerHTML='';
@@ -983,7 +1069,7 @@ function openEditor(i,field){
   document.querySelectorAll('.inline-editor.show').forEach(el=>{if(el.id!==`ied-${i}`)el.classList.remove('show');});
   const box=document.getElementById(`ied-${i}`);
   const e=entries[i];
-  const label=field==='ru'?'Рус таржимаси':field==='def'?'Изоҳ':'Сўз';
+  const label=field==='ru'?'Rus tarjimasi':field==='def'?'Izoh':'So\'z';
   const val=field==='ru'?(e.ru||''):e[field];
   const isTa=field==='def';
   box.innerHTML=`
@@ -1017,14 +1103,14 @@ function recordPatch(i){
   const e=entries[i];
   patches[e.word]={word:e.word,def:e.def,ru:e.ru||'',_deleted:e._deleted||false};
   changes++;
-  document.getElementById('change-count').textContent=`${changes} ўзгариш`;
+  document.getElementById('change-count').textContent="" + changes + " o'zgarish";
   const pb=document.getElementById('patch-btn');
   pb.disabled=false;
 }
 function deleteEntry(i){
   entries[i]._deleted=true;recordPatch(i);
   const el=document.getElementById(`entry-${i}`);
-  if(el){el.classList.add('deleted');const a=el.querySelector('.entry-actions');if(a)a.innerHTML=`<button class="act restore" onclick="restoreEntry(${i})">↩ Тиклаш</button>`;}
+  if(el){el.classList.add('deleted');const a=el.querySelector('.entry-actions');if(a)a.innerHTML=`<button class="act restore" onclick="restoreEntry(${i})">↩ Tiklash</button>`;}
 }
 function restoreEntry(i){entries[i]._deleted=false;recordPatch(i);render();}
 
@@ -1053,7 +1139,7 @@ async function load(){
     const raw=await resp.json();
     entries=Array.isArray(raw)?raw:Object.values(raw);
     document.getElementById('pf').style.width='100%';
-    document.getElementById('h-count').textContent=entries.length.toLocaleString()+' сўз';
+    document.getElementById('h-count').textContent=entries.length.toLocaleString()+" so'z";
     document.getElementById('btn-ru').disabled=!entries.some(e=>e.ru);
     status.classList.remove('show');
     loadPrefs();
@@ -1062,11 +1148,63 @@ async function load(){
     applyURL();
     if(!document.getElementById('search').value) render();
   }catch(err){
-    document.getElementById('status-txt').textContent='Хато: '+err.message;
+    document.getElementById('status-txt').textContent='Xato: '+err.message;
     document.getElementById('pf').style.background='#dc2626';
     document.getElementById('pf').style.width='100%';
   }
 }
+
+// ── PHASE 4: MOBILE ──────────────────────────────────────────────
+let alphaVisible = true;
+
+function bnSetActive(id) {
+  document.querySelectorAll('.bn-item').forEach(b => b.classList.remove('active'));
+  const el = document.getElementById(id);
+  if (el) el.classList.add('active');
+}
+
+function bnSearch() {
+  bnSetActive('bn-search');
+  const inp = document.getElementById('search');
+  inp.focus();
+  inp.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function bnAlpha() {
+  alphaVisible = !alphaVisible;
+  const bar = document.getElementById('alpha-bar');
+  bar.style.display = alphaVisible ? '' : 'none';
+  bnSetActive(alphaVisible ? 'bn-alpha' : 'bn-search');
+}
+
+// Keep mobile fav badge in sync
+function updateMobileFavBadge() {
+  const badge = document.getElementById('bn-fav-badge');
+  if (badge) {
+    const n = favs.size;
+    badge.textContent = n;
+    badge.classList.toggle('show', n > 0);
+  }
+}
+
+// Override saveFavs to also update mobile badge
+const _saveFavsOrig = saveFavs;
+// patch updateFavCount to also update mobile
+const _updateFavCountOrig = updateFavCount;
+
+// Swipe down to dismiss search keyboard
+let touchStartY = 0;
+document.addEventListener('touchstart', e => {
+  touchStartY = e.touches[0].clientY;
+}, { passive: true });
+
+document.addEventListener('touchend', e => {
+  const dy = e.changedTouches[0].clientY - touchStartY;
+  if (dy > 60 && document.activeElement === document.getElementById('search')) {
+    document.getElementById('search').blur();
+    hideDropdown();
+  }
+}, { passive: true });
 
 // ── PHASE 3: THEME, FONT SIZE, DENSITY ──────────────────────────
 const PREFS_KEY = 'lugat_prefs';
@@ -1160,6 +1298,8 @@ function updateFavCount() {
   const n = favs.size;
   const el = document.getElementById('fav-count');
   if (el) { el.textContent = n; el.classList.toggle('show', n > 0); }
+  const badge = document.getElementById('bn-fav-badge');
+  if (badge) { badge.textContent = n; badge.classList.toggle('show', n > 0); }
 }
 function toggleFav(i) {
   const word = entries[i].word;
@@ -1178,9 +1318,9 @@ function toggleFavPanel() {
 function renderFavPanel() {
   const list = document.getElementById('fav-list');
   const favEntries = entries.filter(e => favs.has(e.word));
-  document.getElementById('fav-footer-count').textContent = `${favEntries.length} та сўз`;
+  document.getElementById('fav-footer-count').textContent = "" + favEntries.length + " ta so'z";
   if (!favEntries.length) {
-    list.innerHTML = '<div class="fav-empty">Ҳали ҳеч нарса сақланмаган.<br>★ тугмасини босинг.</div>';
+    list.innerHTML = '<div class="fav-empty">Hali hech narsa saqlanmagan.<br>★ tugmasini bosing.</div>';
     return;
   }
   list.innerHTML = favEntries.map(e => `
@@ -1190,7 +1330,7 @@ function renderFavPanel() {
     </div>`).join('');
 }
 function clearFavs() {
-  if (!confirm('Барча сақланган сўзларни ўчириш?')) return;
+  if (!confirm("Barcha saqlangan so'zlarni o'chirish?")) return;
   favs.clear(); saveFavs();
   document.querySelectorAll('.fav-btn.active').forEach(b => b.classList.remove('active'));
   renderFavPanel();
@@ -1217,7 +1357,7 @@ function expandEntry(event, i) {
   const isExpanded = el.classList.contains('expanded');
   el.classList.toggle('expanded', !isExpanded);
   const hint = document.getElementById(`hint-${i}`);
-  if (hint) hint.textContent = isExpanded ? 'Тўлиқ кўрсатиш ↓' : 'Ёпиш ↑';
+  if (hint) hint.textContent = isExpanded ? '&#x25be; Ko\'proq' : 'Yopish ↑';
 }
 
 // ── COPY ENTRY ───────────────────────────────────────────────────
@@ -1225,7 +1365,7 @@ let toastTimer = null;
 function copyEntry(i) {
   const e = entries[i];
   const text = `${disp(e.word)}${e.ru ? ' — ' + e.ru : ''}\n${disp(e.def)}`;
-  navigator.clipboard.writeText(text).then(() => showToast('Нусхаланди ✓')).catch(() => showToast('Хато'));
+  navigator.clipboard.writeText(text).then(() => showToast('Nusxalandi ✓')).catch(() => showToast('Xato'));
 }
 function showToast(msg) {
   const t = document.getElementById('copy-toast');
@@ -1259,12 +1399,12 @@ function showDropdown() {
   const h = getHistory();
   const dd = document.getElementById('search-dropdown');
   if (!h.length) { hideDropdown(); return; }
-  dd.innerHTML = `<div class="sd-label">Son qidiruvlar</div>` +
+  dd.innerHTML = `<div class="sd-label">So'nggi qidiruvlar</div>` +
     h.map(q => `<div class="sd-item" onclick="pickHistory('${esc(q)}')">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
       ${esc(q)}
     </div>`).join('') +
-    `<div class="sd-clear" onclick="clearHistory()">Тарихни тозалаш</div>`;
+    `<div class="sd-clear" onclick="clearHistory()">Tarixni tozalash</div>`;
   dd.classList.add('show');
 }
 function hideDropdown() {
