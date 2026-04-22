@@ -409,6 +409,50 @@ mark { background: var(--hl); color: var(--text); border-radius: 2px; padding: 0
 .empty-state .empty-icon { font-size: 32px; margin-bottom: 12px; }
 .empty-state p { font-size: 14px; }
 
+/* ── SEARCH HISTORY DROPDOWN ── */
+.search-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0; right: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  box-shadow: var(--shadow-md);
+  z-index: 300;
+  overflow: hidden;
+}
+.search-dropdown.show { display: block; }
+.sd-label {
+  padding: 8px 12px 4px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--text3);
+}
+.sd-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text2);
+  transition: background .08s;
+}
+.sd-item:hover { background: var(--surface2); color: var(--text); }
+.sd-item svg { flex-shrink: 0; color: var(--text3); }
+.sd-clear {
+  padding: 6px 12px;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text3);
+  cursor: pointer;
+  text-align: center;
+  transition: background .08s;
+}
+.sd-clear:hover { background: var(--surface2); color: var(--text2); }
 /* ── SCROLLBAR ── */
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -459,6 +503,7 @@ mark { background: var(--hl); color: var(--text); border-radius: 2px; padding: 0
   <div class="search-wrap">
     <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
     <input type="search" id="search" placeholder="Сўз қидиринг..." autocomplete="off" spellcheck="false"/>
+    <div class="search-dropdown" id="search-dropdown"></div>
   </div>
   <span class="result-badge" id="rc"></span>
 </div>
@@ -640,6 +685,7 @@ function _render(){
   filteredCache=buildFiltered();
   const total=filteredCache.length;
   document.getElementById('rc').textContent=total?`${total.toLocaleString()} натижа`:'';
+  if(q.length>=2) maybeAddHistory(q);
   if(!filteredCache.length){
     main.innerHTML='<div class="empty-state"><div class="empty-icon">🔍</div><p>Ҳеч нарса топилмади</p></div>';
     return;
@@ -725,7 +771,9 @@ async function load(){
     document.getElementById('h-count').textContent=entries.length.toLocaleString()+' сўз';
     document.getElementById('btn-ru').disabled=!entries.some(e=>e.ru);
     status.classList.remove('show');
-    buildAlpha();render();
+    buildAlpha();
+    applyURL();
+    if(!document.getElementById('search').value) render();
   }catch(err){
     document.getElementById('status-txt').textContent='Хато: '+err.message;
     document.getElementById('pf').style.background='#dc2626';
@@ -733,7 +781,150 @@ async function load(){
   }
 }
 
-document.getElementById('search').addEventListener('input',render);
+// ── SEARCH HISTORY ──────────────────────────────────────────────
+const HISTORY_KEY = 'lugat_history';
+const MAX_HISTORY = 10;
+
+function getHistory() {
+  try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; }
+  catch { return []; }
+}
+function addHistory(q) {
+  if (!q || q.length < 2) return;
+  let h = getHistory().filter(x => x !== q);
+  h.unshift(q);
+  h = h.slice(0, MAX_HISTORY);
+  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(h)); } catch {}
+}
+function clearHistory() {
+  try { localStorage.removeItem(HISTORY_KEY); } catch {}
+  hideDropdown();
+}
+
+function showDropdown() {
+  const h = getHistory();
+  const dd = document.getElementById('search-dropdown');
+  if (!h.length) { hideDropdown(); return; }
+  dd.innerHTML = `<div class="sd-label">Son qidiruvlar</div>` +
+    h.map(q => `<div class="sd-item" onclick="pickHistory('${esc(q)}')">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      ${esc(q)}
+    </div>`).join('') +
+    `<div class="sd-clear" onclick="clearHistory()">Тарихни тозалаш</div>`;
+  dd.classList.add('show');
+}
+function hideDropdown() {
+  document.getElementById('search-dropdown').classList.remove('show');
+}
+function pickHistory(q) {
+  const inp = document.getElementById('search');
+  inp.value = q;
+  hideDropdown();
+  inp.focus();
+  onSearchInput();
+}
+
+// ── URL SYNC ─────────────────────────────────────────────────────
+function pushURL(q, word) {
+  const params = new URLSearchParams();
+  if (word) params.set('word', word);
+  else if (q) params.set('q', q);
+  const url = params.toString() ? `?${params}` : location.pathname;
+  history.pushState({ q, word }, '', url);
+}
+
+function readURL() {
+  const params = new URLSearchParams(location.search);
+  return { q: params.get('q') || '', word: params.get('word') || '' };
+}
+
+function applyURL() {
+  const { q, word } = readURL();
+  const inp = document.getElementById('search');
+  if (word) {
+    inp.value = word;
+    render();
+    // after render, scroll to the word
+    setTimeout(() => {
+      const entry = entries.find(e => e.word === word);
+      if (entry) {
+        const idx = entries.indexOf(entry);
+        const el = document.getElementById(`entry-${idx}`);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 300);
+  } else if (q) {
+    inp.value = q;
+    render();
+  }
+}
+
+window.addEventListener('popstate', () => {
+  const { q, word } = readURL();
+  const inp = document.getElementById('search');
+  inp.value = word || q || '';
+  render();
+});
+
+// ── KEYBOARD SHORTCUT ────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  // Cmd+K or / to focus search
+  if ((e.metaKey && e.key === 'k') || (e.key === '/' && document.activeElement !== document.getElementById('search'))) {
+    e.preventDefault();
+    const inp = document.getElementById('search');
+    inp.focus();
+    inp.select();
+    showDropdown();
+  }
+  // Escape to blur search
+  if (e.key === 'Escape') {
+    document.getElementById('search').blur();
+    hideDropdown();
+  }
+});
+
+// ── SEARCH INPUT HANDLER ─────────────────────────────────────────
+function onSearchInput() {
+  const q = document.getElementById('search').value.trim();
+  hideDropdown();
+  clearTimeout(timer);
+  timer = setTimeout(() => {
+    render();
+    if (q.length >= 2) {
+      pushURL(q, '');
+    } else if (!q) {
+      pushURL('', '');
+    }
+  }, 80);
+}
+
+// Search box focus/blur
+document.addEventListener('DOMContentLoaded', () => {
+  const inp = document.getElementById('search');
+  inp.addEventListener('focus', () => {
+    if (!inp.value) showDropdown();
+  });
+  inp.addEventListener('blur', () => {
+    setTimeout(hideDropdown, 150);
+  });
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const q = inp.value.trim();
+      if (q.length >= 2) addHistory(q);
+      hideDropdown();
+    }
+  });
+});
+
+// Save to history on enter or after 2s of no typing with results
+let historyTimer = null;
+function maybeAddHistory(q) {
+  clearTimeout(historyTimer);
+  if (q.length < 2) return;
+  historyTimer = setTimeout(() => addHistory(q), 2000);
+}
+
+document.getElementById('search').addEventListener('input', onSearchInput);
 load();
 </script>
 </body>
