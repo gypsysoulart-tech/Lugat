@@ -3,539 +3,153 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ўзбек луғати</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<title>Ўзбек тилининг изоҳли луғати</title>
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 :root {
-  --bg: #fafafa;
-  --surface: #ffffff;
-  --surface2: #f4f4f5;
-  --surface3: #e4e4e7;
-  --text: #09090b;
-  --text2: #52525b;
-  --text3: #a1a1aa;
-  --accent: #18181b;
-  --accent-fg: #ffffff;
-  --blue: #2563eb;
-  --blue-bg: #eff6ff;
-  --blue-text: #1d4ed8;
-  --green: #16a34a;
-  --green-bg: #f0fdf4;
-  --amber: #d97706;
-  --amber-bg: #fffbeb;
-  --red: #dc2626;
-  --red-bg: #fef2f2;
-  --hl: #fef08a;
-  --border: #e4e4e7;
-  --border2: #d4d4d8;
-  --r: 8px;
-  --r-lg: 12px;
-  --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
-  --shadow-md: 0 4px 6px -1px rgba(0,0,0,.07), 0 2px 4px -1px rgba(0,0,0,.04);
+  --bg: #f5f4f0;
+  --surface: #fff;
+  --border: rgba(0,0,0,0.09);
+  --border-mid: rgba(0,0,0,0.16);
+  --text: #1c1c1a;
+  --muted: #6a6a66;
+  --hint: #9a9a95;
+  --accent: #0F6E56;
+  --accent-bg: #E1F5EE;
+  --accent-dark: #085041;
+  --hl: #FAC775;
+  --ru: #185FA5;
+  --ru-bg: #E6F1FB;
+  --warn: #BA7517;
+  --warn-bg: #FAEEDA;
+  --danger: #A32D2D;
+  --danger-bg: #FCEBEB;
+  --r: 10px; --rsm: 6px;
 }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Georgia',serif;background:var(--bg);color:var(--text)}
 
-body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  font-size: 14px;
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-}
+header{background:var(--surface);border-bottom:0.5px solid var(--border-mid);padding:.9rem 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;position:sticky;top:0;z-index:100}
+.header-left h1{font-size:16px;font-weight:600;letter-spacing:-.2px}
+.header-left .sub{font-size:12px;color:var(--muted);font-family:sans-serif}
+.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 
-/* ── LAYOUT ── */
-.app { display: grid; grid-template-rows: auto auto auto 1fr; min-height: 100vh; }
+.tg{display:flex;border:0.5px solid var(--border-mid);border-radius:var(--rsm);overflow:hidden;font-family:sans-serif;font-size:12px}
+.tg button{padding:5px 11px;border:none;background:transparent;cursor:pointer;color:var(--muted);transition:background .12s,color .12s;white-space:nowrap}
+.tg button.active{background:var(--accent);color:#fff}
+.tg button+button{border-left:0.5px solid var(--border-mid)}
+.tg button:disabled{opacity:.4;cursor:default}
 
-/* ── TOPBAR ── */
-.topbar {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: 0 24px;
-  height: 52px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  position: sticky;
-  top: 0;
-  z-index: 200;
-}
+.icon-btn{padding:5px 10px;border:0.5px solid var(--border-mid);border-radius:var(--rsm);background:transparent;cursor:pointer;color:var(--muted);font-family:sans-serif;font-size:12px;transition:background .12s,color .12s}
+.icon-btn.warn{border-color:var(--warn);color:var(--warn);background:var(--warn-bg)}
 
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  text-decoration: none;
-  color: inherit;
-  flex-shrink: 0;
-}
-.brand-icon {
-  width: 28px; height: 28px;
-  background: var(--accent);
-  border-radius: 6px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 13px; color: #fff; font-weight: 600;
-  letter-spacing: -.5px;
-  flex-shrink: 0;
-}
-.brand-name {
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: -.3px;
-  color: var(--text);
-}
-.brand-count {
-  font-size: 11px;
-  color: var(--text3);
-  font-weight: 400;
-  padding: 2px 7px;
-  background: var(--surface2);
-  border-radius: 20px;
-  border: 1px solid var(--border);
-}
+.search-row{padding:.75rem 1.5rem;background:var(--surface);border-bottom:0.5px solid var(--border);display:flex;gap:10px;align-items:center}
+.search-row input{flex:1;font-size:15px;padding:8px 13px;border:0.5px solid var(--border-mid);border-radius:var(--rsm);background:var(--bg);color:var(--text);font-family:'Georgia',serif;outline:none}
+.search-row input:focus{border-color:var(--accent)}
+.rc{font-size:12px;color:var(--hint);font-family:sans-serif;white-space:nowrap}
 
-.topbar-right { display: flex; align-items: center; gap: 8px; }
+.alpha-bar{padding:6px 1.5rem;background:var(--surface);border-bottom:0.5px solid var(--border);display:flex;flex-wrap:wrap;gap:1px;font-family:sans-serif}
+.alpha-bar button{padding:3px 7px;font-size:11px;border:none;background:transparent;color:var(--muted);cursor:pointer;border-radius:4px;transition:background .1s,color .1s}
+.alpha-bar button:hover{background:var(--accent-bg);color:var(--accent-dark)}
+.alpha-bar button.active{background:var(--accent);color:#fff}
 
-.seg {
-  display: flex;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: var(--r);
-  padding: 3px;
-  gap: 2px;
-}
-.seg button {
-  padding: 4px 10px;
-  border: none;
-  background: transparent;
-  border-radius: 5px;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text2);
-  cursor: pointer;
-  transition: all .12s;
-  font-family: inherit;
-  white-space: nowrap;
-}
-.seg button.active {
-  background: var(--surface);
-  color: var(--text);
-  box-shadow: var(--shadow);
-}
-.seg button:disabled { opacity: .35; cursor: default; }
+.edit-banner{display:none;align-items:center;justify-content:space-between;gap:1rem;padding:8px 1.5rem;background:var(--warn-bg);border-bottom:0.5px solid var(--warn);font-family:sans-serif;font-size:12px;color:var(--warn)}
+.edit-banner.show{display:flex}
+.edit-banner strong{font-weight:600}
+.banner-actions{display:flex;gap:8px;align-items:center}
+.dl-btn{padding:5px 14px;background:var(--warn);color:#fff;border:none;border-radius:var(--rsm);cursor:pointer;font-size:12px;font-family:sans-serif}
+.dl-btn:hover{opacity:.85}
 
-.icon-btn {
-  height: 30px;
-  padding: 0 12px;
-  border: 1px solid var(--border);
-  border-radius: var(--r);
-  background: var(--surface);
-  color: var(--text2);
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex; align-items: center; gap: 5px;
-  transition: all .12s;
-  font-family: inherit;
-  white-space: nowrap;
-}
-.icon-btn:hover { border-color: var(--border2); background: var(--surface2); color: var(--text); }
-.icon-btn.edit-active { background: var(--amber-bg); border-color: var(--amber); color: var(--amber); }
+.status{display:none;align-items:center;gap:10px;padding:8px 1.5rem;font-size:12px;color:var(--muted);font-family:sans-serif;background:var(--accent-bg);border-bottom:0.5px solid var(--border)}
+.status.show{display:flex}
+.pt{flex:1;height:3px;background:var(--border-mid);border-radius:2px;max-width:180px}
+.pf{height:100%;background:var(--accent);border-radius:2px;transition:width .2s;width:0}
 
-/* ── SEARCH BAR ── */
-.searchbar {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: 12px 24px;
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-.search-wrap {
-  flex: 1;
-  position: relative;
-  max-width: 640px;
-}
-.search-icon {
-  position: absolute;
-  left: 11px; top: 50%;
-  transform: translateY(-50%);
-  color: var(--text3);
-  pointer-events: none;
-}
-#search {
-  width: 100%;
-  height: 36px;
-  padding: 0 12px 0 34px;
-  border: 1px solid var(--border);
-  border-radius: var(--r);
-  background: var(--surface2);
-  color: var(--text);
-  font-size: 14px;
-  font-family: inherit;
-  outline: none;
-  transition: border-color .15s, background .15s, box-shadow .15s;
-}
-#search:focus {
-  border-color: var(--blue);
-  background: var(--surface);
-  box-shadow: 0 0 0 3px rgba(37,99,235,.1);
-}
-#search::placeholder { color: var(--text3); }
-.result-badge {
-  font-size: 12px;
-  color: var(--text3);
-  white-space: nowrap;
-  font-weight: 500;
-  min-width: 80px;
-  text-align: right;
-}
+main{max-width:960px;margin:0 auto;padding:1rem 1.5rem 4rem}
 
-/* ── ALPHA BAR ── */
-.alphabar {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: 0 24px;
-  display: flex;
-  align-items: center;
-  gap: 1px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  height: 36px;
-  flex-shrink: 0;
-}
-.alphabar::-webkit-scrollbar { display: none; }
-.alpha-btn {
-  height: 26px;
-  min-width: 28px;
-  padding: 0 7px;
-  border: none;
-  background: transparent;
-  border-radius: 5px;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text3);
-  cursor: pointer;
-  transition: all .1s;
-  font-family: 'JetBrains Mono', monospace;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-.alpha-btn:hover { background: var(--surface2); color: var(--text2); }
-.alpha-btn.active { background: var(--accent); color: #fff; }
-.alpha-divider { width: 1px; height: 16px; background: var(--border); margin: 0 4px; flex-shrink: 0; }
+.letter-group{margin-top:1.5rem}
+.letter-heading{font-size:10px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--hint);font-family:sans-serif;padding-bottom:5px;border-bottom:0.5px solid var(--border);margin-bottom:2px}
 
-/* ── EDIT BANNER ── */
-.edit-banner {
-  display: none;
-  background: var(--amber-bg);
-  border-bottom: 1px solid #fcd34d;
-  padding: 8px 24px;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  font-size: 12px;
-  color: var(--amber);
-}
-.edit-banner.show { display: flex; }
-.edit-banner strong { font-weight: 600; }
-.banner-btns { display: flex; gap: 6px; }
-.banner-btn {
-  height: 28px;
-  padding: 0 12px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-family: inherit;
-  font-weight: 500;
-  cursor: pointer;
-  border: 1px solid;
-  transition: opacity .12s;
-}
-.banner-btn:hover { opacity: .85; }
-.banner-btn.primary { background: var(--amber); color: #fff; border-color: var(--amber); }
-.banner-btn.secondary { background: transparent; color: var(--amber); border-color: #fcd34d; }
-.banner-btn:disabled { opacity: .4; cursor: default; }
+.entry{display:grid;grid-template-columns:200px 1fr auto;border-bottom:0.5px solid var(--border);padding:9px 0;gap:0;transition:background .08s;align-items:start}
+.entry:hover{background:var(--accent-bg);margin:0 -1.5rem;padding:9px 1.5rem}
+.entry.deleted{opacity:.35;text-decoration:line-through}
+.entry-left{padding-right:1.25rem}
+.entry-word{font-size:14px;font-weight:600;line-height:1.4}
+.entry-ru-row{margin-top:3px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.entry-ru{font-size:12px;color:var(--ru);font-family:sans-serif;font-style:italic}
+.entry-ru.empty{color:var(--hint);font-style:normal}
+.entry-def{font-size:13px;color:var(--muted);line-height:1.6;padding-right:.5rem}
 
-/* ── STATUS ── */
-.status-bar {
-  display: none;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: 10px 24px;
-  align-items: center;
-  gap: 12px;
-  font-size: 12px;
-  color: var(--text2);
-}
-.status-bar.show { display: flex; }
-.progress-track { flex: 1; max-width: 200px; height: 2px; background: var(--border); border-radius: 2px; overflow: hidden; }
-.progress-fill { height: 100%; background: var(--blue); border-radius: 2px; transition: width .2s; width: 0; }
+.entry-actions{display:none;flex-direction:column;gap:4px;padding-left:8px;min-width:60px}
+.edit-mode .entry-actions{display:flex}
 
-/* ── MAIN CONTENT ── */
-#main {
-  max-width: 860px;
-  margin: 0 auto;
-  width: 100%;
-  padding: 0 24px 80px;
-}
+.act-btn{padding:3px 8px;font-size:11px;font-family:sans-serif;border-radius:3px;cursor:pointer;border:0.5px solid var(--border-mid);background:transparent;color:var(--muted);white-space:nowrap;transition:border-color .1s,color .1s,background .1s}
+.act-btn:hover{border-color:var(--accent);color:var(--accent)}
+.act-btn.del{color:var(--danger)}
+.act-btn.del:hover{background:var(--danger-bg);border-color:var(--danger)}
+.act-btn.restore{color:var(--accent)}
 
-/* ── LETTER GROUP ── */
-.letter-group { margin-top: 28px; }
-.letter-head {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  color: var(--text3);
-  font-family: 'JetBrains Mono', monospace;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 0;
-}
+.inline-editor{display:none;margin-top:6px;background:var(--surface);border:0.5px solid var(--border-mid);border-radius:var(--rsm);padding:10px;grid-column:1/-1}
+.inline-editor.show{display:block}
+.ie-label{font-size:11px;font-family:sans-serif;color:var(--muted);margin-bottom:4px}
+.ie-input{width:100%;font-size:13px;font-family:'Georgia',serif;padding:6px 10px;border:0.5px solid var(--border-mid);border-radius:var(--rsm);color:var(--text);background:var(--bg);outline:none;resize:vertical}
+.ie-input:focus{border-color:var(--accent)}
+.ie-input.ru{font-family:sans-serif;color:var(--ru);resize:none;height:36px}
+.ie-actions{display:flex;gap:6px;margin-top:6px}
+.ie-ok{padding:4px 12px;background:var(--accent);color:#fff;border:none;border-radius:3px;cursor:pointer;font-size:12px;font-family:sans-serif}
+.ie-cancel{padding:4px 10px;background:transparent;border:0.5px solid var(--border-mid);border-radius:3px;cursor:pointer;font-size:12px;font-family:sans-serif;color:var(--muted)}
 
-/* ── ENTRY ── */
-.entry {
-  display: grid;
-  grid-template-columns: 220px 1fr;
-  border-bottom: 1px solid var(--border);
-  padding: 12px 0;
-  gap: 0;
-  transition: background .08s;
-  position: relative;
-}
-.entry:hover { background: var(--surface2); margin: 0 -12px; padding: 12px 12px; border-radius: 0; }
-.entry.deleted { opacity: .3; }
-.entry.deleted .entry-word { text-decoration: line-through; }
+mark{background:var(--hl);color:var(--text);border-radius:2px;padding:0 1px}
+.empty-state{text-align:center;padding:3rem;color:var(--muted);font-family:sans-serif;font-size:14px}
 
-.entry-left { padding-right: 20px; }
-.entry-word {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text);
-  line-height: 1.4;
-  letter-spacing: -.1px;
-  font-family: 'JetBrains Mono', monospace;
-}
-.entry-ru {
-  font-size: 12px;
-  color: var(--blue-text);
-  margin-top: 3px;
-  font-weight: 400;
-}
-.entry-ru.empty { color: var(--text3); }
-.entry-def {
-  font-size: 13px;
-  color: var(--text2);
-  line-height: 1.65;
-  padding-top: 1px;
-}
-
-/* ── EDIT MODE ENTRY ACTIONS ── */
-.entry-actions {
-  display: none;
-  position: absolute;
-  top: 8px; right: 0;
-  flex-direction: column;
-  gap: 3px;
-}
-.edit-mode .entry-actions { display: flex; }
-.entry:hover .entry-actions { display: flex; }
-
-.act {
-  height: 22px;
-  padding: 0 8px;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  background: var(--surface);
-  color: var(--text2);
-  font-size: 11px;
-  font-family: inherit;
-  font-weight: 500;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all .1s;
-}
-.act:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-bg); }
-.act.danger:hover { border-color: var(--red); color: var(--red); background: var(--red-bg); }
-.act.restore:hover { border-color: var(--green); color: var(--green); background: var(--green-bg); }
-
-/* ── INLINE EDITOR ── */
-.inline-editor {
-  display: none;
-  grid-column: 1 / -1;
-  margin-top: 8px;
-  background: var(--surface);
-  border: 1px solid var(--blue);
-  border-radius: var(--r);
-  padding: 12px;
-  box-shadow: 0 0 0 3px rgba(37,99,235,.08);
-}
-.inline-editor.show { display: block; }
-.ie-label { font-size: 11px; font-weight: 500; color: var(--text3); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .05em; }
-.ie-input {
-  width: 100%;
-  font-size: 13px;
-  font-family: inherit;
-  padding: 7px 10px;
-  border: 1px solid var(--border2);
-  border-radius: 6px;
-  color: var(--text);
-  background: var(--surface2);
-  outline: none;
-  resize: vertical;
-  line-height: 1.5;
-}
-.ie-input:focus { border-color: var(--blue); background: var(--surface); }
-.ie-input.mono { font-family: 'JetBrains Mono', monospace; font-size: 13px; }
-.ie-actions { display: flex; gap: 6px; margin-top: 8px; }
-.ie-ok { height: 28px; padding: 0 14px; background: var(--blue); color: #fff; border: none; border-radius: 6px; font-size: 12px; font-family: inherit; font-weight: 500; cursor: pointer; }
-.ie-ok:hover { opacity: .9; }
-.ie-cancel { height: 28px; padding: 0 12px; background: transparent; border: 1px solid var(--border2); border-radius: 6px; font-size: 12px; font-family: inherit; color: var(--text2); cursor: pointer; }
-.ie-cancel:hover { background: var(--surface2); }
-
-/* ── HIGHLIGHT ── */
-mark { background: var(--hl); color: var(--text); border-radius: 2px; padding: 0 1px; }
-
-/* ── EMPTY / LOADING ── */
-.empty-state {
-  text-align: center;
-  padding: 60px 24px;
-  color: var(--text3);
-}
-.empty-state .empty-icon { font-size: 32px; margin-bottom: 12px; }
-.empty-state p { font-size: 14px; }
-
-/* ── SEARCH HISTORY DROPDOWN ── */
-.search-dropdown {
-  display: none;
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0; right: 0;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--r);
-  box-shadow: var(--shadow-md);
-  z-index: 300;
-  overflow: hidden;
-}
-.search-dropdown.show { display: block; }
-.sd-label {
-  padding: 8px 12px 4px;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  color: var(--text3);
-}
-.sd-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 12px;
-  cursor: pointer;
-  font-size: 13px;
-  color: var(--text2);
-  transition: background .08s;
-}
-.sd-item:hover { background: var(--surface2); color: var(--text); }
-.sd-item svg { flex-shrink: 0; color: var(--text3); }
-.sd-clear {
-  padding: 6px 12px;
-  border-top: 1px solid var(--border);
-  font-size: 11px;
-  color: var(--text3);
-  cursor: pointer;
-  text-align: center;
-  transition: background .08s;
-}
-.sd-clear:hover { background: var(--surface2); color: var(--text2); }
-/* ── SCROLLBAR ── */
-::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 10px; }
-
-/* ── MOBILE ── */
-@media (max-width: 640px) {
-  .topbar { padding: 0 16px; height: 48px; }
-  .brand-name { display: none; }
-  .searchbar { padding: 10px 16px; }
-  .alphabar { padding: 0 16px; }
-  #main { padding: 0 16px 60px; }
-  .entry { grid-template-columns: 1fr; }
-  .entry-left { padding-right: 0; margin-bottom: 4px; }
-  .edit-banner { padding: 8px 16px; }
-  .entry-actions { position: static; flex-direction: row; flex-wrap: wrap; margin-top: 6px; grid-column: 1/-1; }
+@media(max-width:580px){
+  .entry{grid-template-columns:1fr auto}
+  .entry-left{padding-right:0;margin-bottom:3px;grid-column:1}
+  .entry-def{grid-column:1/-1}
+  header,.search-row,.alpha-bar,main{padding-left:1rem;padding-right:1rem}
 }
 </style>
 </head>
 <body>
-<div class="app">
 
-<!-- TOPBAR -->
-<header class="topbar">
-  <div class="brand">
-    <div class="brand-icon">Ўз</div>
-    <span class="brand-name">Ўзбек луғати</span>
-    <span class="brand-count" id="h-count">—</span>
+<header>
+  <div class="header-left">
+    <h1>Ўзбек тилининг изоҳли луғати</h1>
+    <div class="sub" id="h-sub">Юкланмоқда...</div>
   </div>
-  <div class="topbar-right">
-    <div class="seg" id="script-seg">
+  <div class="controls">
+    <div class="tg" id="script-tg">
       <button class="active" onclick="setScript('cyr')">Кирилл</button>
       <button onclick="setScript('lat')">Latin</button>
     </div>
-    <div class="seg" id="lang-seg">
+    <div class="tg" id="lang-tg">
       <button class="active" onclick="setLang('uz')">Ўзбек</button>
-      <button id="btn-ru" onclick="setLang('ru')">Рус</button>
+      <button onclick="setLang('ru')" id="btn-ru">Русский</button>
     </div>
-    <button class="icon-btn" id="edit-btn" onclick="toggleEdit()">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-      Таҳрир
-    </button>
+    <button class="icon-btn" id="edit-btn" onclick="toggleEdit()">✏️ Таҳрир</button>
   </div>
 </header>
 
-<!-- SEARCH -->
-<div class="searchbar">
-  <div class="search-wrap">
-    <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-    <input type="search" id="search" placeholder="Сўз қидиринг..." autocomplete="off" spellcheck="false"/>
-    <div class="search-dropdown" id="search-dropdown"></div>
-  </div>
-  <span class="result-badge" id="rc"></span>
+<div class="search-row">
+  <input type="search" id="search" placeholder="Сўз қидиринг..." autocomplete="off"/>
+  <span class="rc" id="rc"></span>
 </div>
+<div class="alpha-bar" id="alpha-bar"></div>
 
-<!-- ALPHA BAR -->
-<nav class="alphabar" id="alpha-bar"></nav>
-
-<!-- EDIT BANNER -->
 <div class="edit-banner" id="edit-banner">
-  <span><strong>Таҳрир режими</strong> — сўзни, изоҳни ёки таржимани тузатинг</span>
-  <div class="banner-btns">
-    <span id="change-count" style="font-size:11px;opacity:.7"></span>
-    <button class="banner-btn secondary" id="patch-btn" onclick="exportPatch()" disabled>Патч юклаш</button>
-    <button class="banner-btn primary" onclick="exportJSON()">JSON юклаш</button>
+  <span><strong>Таҳрир режими:</strong> сўзни ўзгартириш, таржимани тузатиш ёки ёзувни ўчириш мумкин</span>
+  <div class="banner-actions">
+    <span id="change-count" style="font-size:11px"></span>
+    <button class="dl-btn" id="patch-btn" onclick="exportPatch()" style="opacity:.4;cursor:default" disabled>⬇ Патч юклаш</button>
+    <button class="dl-btn" style="background:var(--accent);margin-left:4px" onclick="exportJSON()">⬇ JSON юклаш</button>
   </div>
 </div>
 
-<!-- STATUS -->
-<div class="status-bar" id="status">
+<div class="status" id="status">
   <span id="status-txt">Юкланмоқда...</span>
-  <div class="progress-track"><div class="progress-fill" id="pf"></div></div>
+  <div class="pt"><div class="pf" id="pf"></div></div>
 </div>
 
-<!-- MAIN -->
-<main id="main">
-  <div class="empty-state">
-    <div class="empty-icon">📖</div>
-    <p>Юкланмоқда...</p>
-  </div>
-</main>
-
-</div><!-- .app -->
+<main id="main"><div class="empty-state">Юкланмоқда...</div></main>
 
 <script>
 const CYR_MAP=[['Ё','Yo'],['ё','yo'],['Ю','Yu'],['ю','yu'],['Я','Ya'],['я','ya'],['Ж','J'],['ж','j'],['Х','X'],['х','x'],['Ц','Ts'],['ц','ts'],['Ч','Ch'],['ч','ch'],['Ш','Sh'],['ш','sh'],['Щ','Sh'],['щ','sh'],['Ъ',"'"],['ъ',"'"],['Ь',''],['ь',''],['А','A'],['а','a'],['Б','B'],['б','b'],['В','V'],['в','v'],['Г','G'],['г','g'],['Д','D'],['д','d'],['Е','E'],['е','e'],['З','Z'],['з','z'],['И','I'],['и','i'],['Й','Y'],['й','y'],['К','K'],['к','k'],['Л','L'],['л','l'],['М','M'],['м','m'],['Н','N'],['н','n'],['О','O'],['о','o'],['П','P'],['п','p'],['Р','R'],['р','r'],['С','S'],['с','s'],['Т','T'],['т','t'],['У','U'],['у','u'],['Ф','F'],['ф','f'],['Э','E'],['э','e'],['Ғ',"G'"],['ғ',"g'"],['Ҳ','H'],['ҳ','h'],['Қ','Q'],['қ','q'],['Ў',"O'"],['ў',"o'"]];
@@ -544,31 +158,28 @@ const UZ_LAT=['A','B','D','E','F','G',"G'",'H','I','J','K','L','M','N','O',"O'",
 const RU_AL=['А','Б','В','Г','Д','Е','Ж','З','И','К','Л','М','Н','О','П','Р','С','Т','У','Ф','Х','Ц','Ч','Ш','Э','Ю','Я'];
 
 let entries=[], script='cyr', lang='uz', activeAlpha=null, editMode=false, changes=0, timer=null;
-let filteredCache=[], pageSize=100, observer=null;
-const patches={};
+let filteredCache=[], pageSize=100, currentPage=0, observer=null;
+const patches={}; // word -> {word, def, ru, _deleted}
 
 function c2l(s){let r=s;for(const[c,l]of CYR_MAP)r=r.split(c).join(l);return r}
 function disp(s){return script==='lat'?c2l(s||''):(s||'')}
 
 function setScript(s){
   script=s;
-  document.getElementById('script-seg').querySelectorAll('button').forEach((b,i)=>b.classList.toggle('active',(i===0&&s==='cyr')||(i===1&&s==='lat')));
-  document.getElementById('search').placeholder=lang==='ru'?'Поиск на русском...':(s==='lat'?"So'z qidiring...":'Сўз қидиринг...');
+  document.getElementById('script-tg').querySelectorAll('button').forEach((b,i)=>b.classList.toggle('active',(i===0&&s==='cyr')||(i===1&&s==='lat')));
   buildAlpha();render();
 }
 function setLang(l){
   lang=l;
-  document.getElementById('lang-seg').querySelectorAll('button').forEach((b,i)=>b.classList.toggle('active',(i===0&&l==='uz')||(i===1&&l==='ru')));
+  document.getElementById('lang-tg').querySelectorAll('button').forEach((b,i)=>b.classList.toggle('active',(i===0&&l==='uz')||(i===1&&l==='ru')));
   document.getElementById('search').placeholder=l==='ru'?'Поиск на русском...':(script==='lat'?"So'z qidiring...":'Сўз қидиринг...');
   activeAlpha=null;buildAlpha();render();
 }
 function toggleEdit(){
   editMode=!editMode;
   const btn=document.getElementById('edit-btn');
-  btn.classList.toggle('edit-active',editMode);
-  btn.innerHTML=editMode
-    ?`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg> Ёпиш`
-    :`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Таҳрир`;
+  btn.classList.toggle('warn',editMode);
+  btn.textContent=editMode?'✏️ Ёпиш':'✏️ Таҳрир';
   document.getElementById('edit-banner').classList.toggle('show',editMode);
   document.getElementById('main').classList.toggle('edit-mode',editMode);
   render();
@@ -579,17 +190,14 @@ function buildAlpha(){
   const letters=lang==='ru'?RU_AL:(script==='lat'?UZ_LAT:UZ_CYR);
   bar.innerHTML='';
   const all=document.createElement('button');
-  all.className='alpha-btn'+(activeAlpha?'':' active');
-  all.textContent=script==='lat'?'All':'Бар';
+  all.textContent=script==='lat'?'All':'Барча';
+  if(!activeAlpha)all.classList.add('active');
   all.onclick=()=>{activeAlpha=null;buildAlpha();render();};
   bar.appendChild(all);
-  const div=document.createElement('div');
-  div.className='alpha-divider';
-  bar.appendChild(div);
   for(const l of letters){
     const b=document.createElement('button');
-    b.className='alpha-btn'+(activeAlpha===l?' active':'');
     b.textContent=l;
+    if(activeAlpha===l)b.classList.add('active');
     b.onclick=()=>{activeAlpha=l;buildAlpha();render();};
     bar.appendChild(b);
   }
@@ -597,116 +205,154 @@ function buildAlpha(){
 
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 function hl(t,q){if(!q)return esc(t);const e=q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');return esc(t).replace(new RegExp(`(${e})`,'gi'),'<mark>$1</mark>')}
+
 function render(){clearTimeout(timer);timer=setTimeout(_render,80)}
 
 function buildFiltered(){
   const q=document.getElementById('search').value.trim().toLowerCase();
-  let f=entries.map((e,i)=>({...e,_i:i})).filter(e=>{
+  let filtered=entries.map((e,i)=>({...e,_i:i})).filter(e=>{
     if(lang==='ru')return(e.ru||'').toLowerCase().includes(q);
-    const w=disp(e.word).toLowerCase(),d=disp(e.def).toLowerCase(),ql=c2l(q);
+    const w=disp(e.word).toLowerCase(), d=disp(e.def).toLowerCase(), ql=c2l(q);
     return w.includes(q)||d.includes(q)||w.includes(ql)||d.includes(ql);
   });
   if(activeAlpha){
-    f=f.filter(e=>{
+    filtered=filtered.filter(e=>{
       const src=lang==='ru'?(e.ru||'').charAt(0).toUpperCase():disp(e.word).charAt(0).toUpperCase();
       return src===activeAlpha;
     });
   }
-  return f;
+  return filtered;
 }
 
-function entryHTML(e,q){
-  const i=e._i,w=disp(e.word),d=disp(e.def),ru=e.ru||'';
-  return`<div class="entry${e._deleted?' deleted':''}" id="entry-${i}">
-  <div class="entry-left">
-    <div class="entry-word" id="word-${i}">${hl(w,lang==='uz'?q:'')}</div>
-    <div class="entry-ru${ru?'':' empty'}" id="ru-${i}">${ru?hl(ru,lang==='ru'?q:''):'—'}</div>
-  </div>
-  <div class="entry-def" id="def-${i}">${hl(d,lang==='uz'?q:'')}</div>
-  <div class="entry-actions">
-    ${e._deleted
-      ?`<button class="act restore" onclick="restoreEntry(${i})">↩ Тиклаш</button>`
-      :`<button class="act" onclick="openEditor(${i},'ru')">РУ</button>
-        <button class="act" onclick="openEditor(${i},'def')">Изоҳ</button>
-        <button class="act" onclick="openEditor(${i},'word')">Сўз</button>
-        <button class="act danger" onclick="deleteEntry(${i})">✕</button>`
-    }
-  </div>
-  <div class="inline-editor" id="ied-${i}"></div>
-</div>`;
+function entryHTML(e, q){
+  const i=e._i, w=disp(e.word), d=disp(e.def), ru=e.ru||'';
+  const deleted=e._deleted?'deleted':'';
+  return `<div class="entry ${deleted}" id="entry-${i}">
+    <div class="entry-left">
+      <div class="entry-word" id="word-${i}">${hl(w,lang==='uz'?q:'')}</div>
+      <div class="entry-ru-row">
+        <span class="entry-ru${ru?'':' empty'}" id="ru-${i}">${ru?hl(ru,lang==='ru'?q:''):'—'}</span>
+      </div>
+    </div>
+    <div class="entry-def" id="def-${i}">${hl(d,lang==='uz'?q:'')}</div>
+    <div class="entry-actions">
+      ${e._deleted
+        ?`<button class="act-btn restore" onclick="restoreEntry(${i})">↩ Тиклаш</button>`
+        :`<button class="act-btn" onclick="openEditor(${i},'ru')">РУ тузатиш</button>
+           <button class="act-btn" onclick="openEditor(${i},'def')">Изоҳ тузатиш</button>
+           <button class="act-btn" onclick="openEditor(${i},'word')">Сўз тузатиш</button>
+           <button class="act-btn del" onclick="deleteEntry(${i})">✕ Ўчириш</button>`
+      }
+    </div>
+    <div class="inline-editor" id="ied-${i}"></div>
+  </div>`;
 }
 
-function renderPage(filtered,page,q,append){
+function renderPage(filtered, page, q, append){
   const main=document.getElementById('main');
-  const start=page*pageSize,end=start+pageSize;
+  const start=page*pageSize, end=start+pageSize;
   const slice=filtered.slice(start,end);
-  if(!slice.length)return;
+  if(!slice.length) return;
+
+  // Group only this slice but keep letter headings coherent
   const grouped={};
   for(const e of slice){
-    const l=lang==='ru'?(e.ru||'?').charAt(0).toUpperCase():disp(e.word).charAt(0).toUpperCase();
-    if(!grouped[l])grouped[l]=[];
-    grouped[l].push(e);
+    const letter=lang==='ru'?(e.ru||'?').charAt(0).toUpperCase():disp(e.word).charAt(0).toUpperCase();
+    if(!grouped[letter])grouped[letter]=[];
+    grouped[letter].push(e);
   }
+
   let html='';
   for(const letter of Object.keys(grouped).sort((a,b)=>a.localeCompare(b,'uz'))){
-    const firstIdx=filtered.findIndex(e=>{
+    // Only add letter heading if first entry of this letter overall
+    const firstOfLetter=filtered.findIndex(e=>{
       const l=lang==='ru'?(e.ru||'?').charAt(0).toUpperCase():disp(e.word).charAt(0).toUpperCase();
       return l===letter;
     });
-    if(firstIdx>=start&&firstIdx<end){
-      html+=`<div class="letter-group" id="lg-${letter}"><div class="letter-head">${esc(letter)}</div>`;
+    if(firstOfLetter>=start&&firstOfLetter<end){
+      html+=`<div class="letter-group" id="lg-${letter}"><div class="letter-heading">${esc(letter)}</div>`;
     } else {
-      const ex=document.getElementById(`lg-${letter}`);
-      if(ex){for(const e of grouped[letter])ex.insertAdjacentHTML('beforeend',entryHTML(e,q));continue;}
+      const existing=document.getElementById(`lg-${letter}`);
+      if(existing){
+        // append to existing group
+        for(const e of grouped[letter]) existing.insertAdjacentHTML('beforeend', entryHTML(e,q));
+        continue;
+      }
       html+=`<div class="letter-group" id="lg-${letter}">`;
     }
-    for(const e of grouped[letter])html+=entryHTML(e,q);
+    for(const e of grouped[letter]) html+=entryHTML(e,q);
     html+='</div>';
   }
-  const sentinel=document.getElementById('scroll-sentinel');
-  if(sentinel)sentinel.remove();
-  if(append)main.insertAdjacentHTML('beforeend',html);
-  else main.innerHTML=html;
-  if(end<filtered.length){
-    main.insertAdjacentHTML('beforeend','<div id="scroll-sentinel" style="height:60px"></div>');
-    if(observer)observer.disconnect();
-    const s=document.getElementById('scroll-sentinel');
-    observer=new IntersectionObserver(es=>{
-      if(es[0].isIntersecting){observer.disconnect();renderPage(filtered,page+1,q,true);}
-    },{rootMargin:'300px'});
-    observer.observe(s);
+
+  if(append){
+    // Remove sentinel before appending
+    const sentinel=document.getElementById('scroll-sentinel');
+    if(sentinel)sentinel.remove();
+    main.insertAdjacentHTML('beforeend', html);
+  } else {
+    main.innerHTML=html;
   }
+
+  // Add sentinel if more pages remain
+  if(end < filtered.length){
+    main.insertAdjacentHTML('beforeend','<div id="scroll-sentinel" style="height:40px;margin-top:1rem"></div>');
+    attachObserver(filtered, page+1, q);
+  }
+}
+
+function attachObserver(filtered, nextPage, q){
+  if(observer) observer.disconnect();
+  const sentinel=document.getElementById('scroll-sentinel');
+  if(!sentinel) return;
+  observer=new IntersectionObserver(entries=>{
+    if(entries[0].isIntersecting){
+      observer.disconnect();
+      currentPage=nextPage;
+      renderPage(filtered, nextPage, q, true);
+    }
+  },{rootMargin:'200px'});
+  observer.observe(sentinel);
 }
 
 function _render(){
   const main=document.getElementById('main');
   const q=document.getElementById('search').value.trim().toLowerCase();
   if(observer){observer.disconnect();observer=null;}
+
   filteredCache=buildFiltered();
+  currentPage=0;
   const total=filteredCache.length;
-  document.getElementById('rc').textContent=total?`${total.toLocaleString()} натижа`:'';
-  if(q.length>=2) maybeAddHistory(q);
-  if(!filteredCache.length){
-    main.innerHTML='<div class="empty-state"><div class="empty-icon">🔍</div><p>Ҳеч нарса топилмади</p></div>';
-    return;
-  }
+
+  document.getElementById('rc').textContent=total
+    ?`${total.toLocaleString()}`+(script==='lat'?' results':' натижа'):'';
+
+  if(!filteredCache.length){main.innerHTML='<div class="empty-state">Ҳеч нарса топилмади.</div>';return}
+
   main.innerHTML='';
-  renderPage(filteredCache,0,q,false);
+  renderPage(filteredCache, 0, q, false);
 }
 
-function openEditor(i,field){
-  document.querySelectorAll('.inline-editor.show').forEach(el=>{if(el.id!==`ied-${i}`)el.classList.remove('show');});
+function openEditor(i, field){
+  // Close any open editors first
+  document.querySelectorAll('.inline-editor.show').forEach(el=>{
+    if(el.id!==`ied-${i}`)el.classList.remove('show');
+  });
+
   const box=document.getElementById(`ied-${i}`);
   const e=entries[i];
-  const label=field==='ru'?'Рус таржимаси':field==='def'?'Изоҳ':'Сўз';
-  const val=field==='ru'?(e.ru||''):e[field];
-  const isTa=field==='def';
+  const isRu=field==='ru', isDef=field==='def', isWord=field==='word';
+  const label=isRu?'Рус таржимаси':isDef?'Изоҳ (таъриф)':'Сўз (бош сўз)';
+  const val=isRu?(e.ru||''):isDef?e.def:e.word;
+  const inputType=isRu||isWord?'input':'textarea';
+
   box.innerHTML=`
     <div class="ie-label">${label}</div>
-    ${isTa?`<textarea class="ie-input" id="ie-val-${i}" rows="4">${esc(val)}</textarea>`
-           :`<input class="ie-input mono" id="ie-val-${i}" type="text" value="${esc(val)}">`}
+    ${inputType==='textarea'
+      ?`<textarea class="ie-input" id="ie-val-${i}" rows="4">${esc(val)}</textarea>`
+      :`<input class="ie-input ru" id="ie-val-${i}" type="text" value="${esc(val)}">`
+    }
     <div class="ie-actions">
-      <button class="ie-ok" onclick="saveField(${i},'${field}')">Сақлаш</button>
+      <button class="ie-ok" onclick="saveField(${i},'${field}')">✓ Сақлаш</button>
       <button class="ie-cancel" onclick="closeEditor(${i})">Бекор</button>
     </div>`;
   box.classList.add('show');
@@ -715,46 +361,88 @@ function openEditor(i,field){
   if(inp.setSelectionRange)inp.setSelectionRange(inp.value.length,inp.value.length);
   inp.addEventListener('keydown',ev=>{
     if(ev.key==='Escape')closeEditor(i);
-    if(ev.key==='Enter'&&!isTa)saveField(i,field);
+    if(ev.key==='Enter'&&inputType==='input')saveField(i,field);
   });
 }
-function closeEditor(i){const b=document.getElementById(`ied-${i}`);if(b)b.classList.remove('show');}
-function saveField(i,field){
-  const inp=document.getElementById(`ie-val-${i}`);if(!inp)return;
+
+function closeEditor(i){
+  const box=document.getElementById(`ied-${i}`);
+  if(box)box.classList.remove('show');
+}
+
+function saveField(i, field){
+  const inp=document.getElementById(`ie-val-${i}`);
+  if(!inp)return;
   const val=inp.value.trim();
   entries[i][field]=val;
-  recordPatch(i);closeEditor(i);
-  if(field==='ru'){const el=document.getElementById(`ru-${i}`);if(el){el.textContent=val||'—';el.className='entry-ru'+(val?'':' empty');}}
-  else if(field==='def'){const el=document.getElementById(`def-${i}`);if(el)el.textContent=val;}
-  else if(field==='word'){const el=document.getElementById(`word-${i}`);if(el)el.textContent=disp(val);}
+  recordPatch(i);
+  closeEditor(i);
+
+  // Update DOM in place without full re-render
+  if(field==='ru'){
+    const el=document.getElementById(`ru-${i}`);
+    if(el){el.textContent=val||'—';el.className='entry-ru'+(val?'':' empty')}
+  } else if(field==='def'){
+    const el=document.getElementById(`def-${i}`);
+    if(el)el.textContent=val;
+  } else if(field==='word'){
+    const el=document.getElementById(`word-${i}`);
+    if(el)el.textContent=disp(val);
+  }
 }
+
 function recordPatch(i){
   const e=entries[i];
-  patches[e.word]={word:e.word,def:e.def,ru:e.ru||'',_deleted:e._deleted||false};
+  patches[e.word]={word:e.word, def:e.def, ru:e.ru||'', _deleted:e._deleted||false};
   changes++;
-  document.getElementById('change-count').textContent=`${changes} ўзгариш`;
+  document.getElementById('change-count').textContent=`${changes} та ўзгариш`;
   const pb=document.getElementById('patch-btn');
-  pb.disabled=false;
+  pb.disabled=false; pb.style.opacity='1'; pb.style.cursor='pointer';
 }
+
 function deleteEntry(i){
-  entries[i]._deleted=true;recordPatch(i);
+  entries[i]._deleted=true;
+  recordPatch(i);
   const el=document.getElementById(`entry-${i}`);
-  if(el){el.classList.add('deleted');const a=el.querySelector('.entry-actions');if(a)a.innerHTML=`<button class="act restore" onclick="restoreEntry(${i})">↩ Тиклаш</button>`;}
+  if(el){
+    el.classList.add('deleted');
+    const actions=el.querySelector('.entry-actions');
+    if(actions)actions.innerHTML=`<button class="act-btn restore" onclick="restoreEntry(${i})">↩ Тиклаш</button>`;
+  }
 }
-function restoreEntry(i){entries[i]._deleted=false;recordPatch(i);render();}
+
+function restoreEntry(i){
+  entries[i]._deleted=false;
+  recordPatch(i);
+  render();
+}
 
 function exportPatch(){
-  const list=Object.values(patches);
-  if(!list.length){alert('Ўзгаришлар йўқ.');return;}
-  dl(JSON.stringify({created:new Date().toISOString(),count:list.length,patches:list},null,2),`lugat_patch_${new Date().toISOString().slice(0,10)}.json`);
-}
-function exportJSON(){
-  dl(JSON.stringify(entries.filter(e=>!e._deleted).map(e=>({word:e.word,def:e.def,ru:e.ru||''})),null,2),'dictionary_enriched.json');
-}
-function dl(content,name){
+  const patchList=Object.values(patches);
+  if(!patchList.length){alert('Ўзгаришлар йўқ.');return;}
+  const out={
+    created: new Date().toISOString(),
+    count: patchList.length,
+    patches: patchList
+  };
+  const blob=new Blob([JSON.stringify(out,null,2)],{type:'application/json'});
   const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([content],{type:'application/json'}));
-  a.download=name;a.click();URL.revokeObjectURL(a.href);
+  a.href=URL.createObjectURL(blob);
+  a.download=`lugat_patch_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function exportJSON(){
+  const clean=entries
+    .filter(e=>!e._deleted)
+    .map(e=>({word:e.word,def:e.def,ru:e.ru||''}));
+  const blob=new Blob([JSON.stringify(clean,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='dictionary_enriched.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
 }
 
 async function load(){
@@ -762,169 +450,26 @@ async function load(){
   status.classList.add('show');
   try{
     let resp=await fetch('dictionary_enriched.json');
-    document.getElementById('pf').style.width='40%';
+    document.getElementById('status-txt').textContent=resp.ok?'dictionary_enriched.json...':'dictionary_parsed.json...';
+    document.getElementById('pf').style.width='30%';
     if(!resp.ok)resp=await fetch('dictionary_parsed.json');
-    document.getElementById('pf').style.width='80%';
+    document.getElementById('pf').style.width='70%';
     const raw=await resp.json();
     entries=Array.isArray(raw)?raw:Object.values(raw);
     document.getElementById('pf').style.width='100%';
-    document.getElementById('h-count').textContent=entries.length.toLocaleString()+' сўз';
-    document.getElementById('btn-ru').disabled=!entries.some(e=>e.ru);
+    document.getElementById('h-sub').textContent=`${entries.length.toLocaleString()} та сўз`;
+    const hasRu=entries.some(e=>e.ru);
+    document.getElementById('btn-ru').disabled=!hasRu;
     status.classList.remove('show');
-    buildAlpha();
-    applyURL();
-    if(!document.getElementById('search').value) render();
+    buildAlpha();render();
   }catch(err){
     document.getElementById('status-txt').textContent='Хато: '+err.message;
-    document.getElementById('pf').style.background='#dc2626';
+    document.getElementById('pf').style.background='#E24B4A';
     document.getElementById('pf').style.width='100%';
   }
 }
 
-// ── SEARCH HISTORY ──────────────────────────────────────────────
-const HISTORY_KEY = 'lugat_history';
-const MAX_HISTORY = 10;
-
-function getHistory() {
-  try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; }
-  catch { return []; }
-}
-function addHistory(q) {
-  if (!q || q.length < 2) return;
-  let h = getHistory().filter(x => x !== q);
-  h.unshift(q);
-  h = h.slice(0, MAX_HISTORY);
-  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(h)); } catch {}
-}
-function clearHistory() {
-  try { localStorage.removeItem(HISTORY_KEY); } catch {}
-  hideDropdown();
-}
-
-function showDropdown() {
-  const h = getHistory();
-  const dd = document.getElementById('search-dropdown');
-  if (!h.length) { hideDropdown(); return; }
-  dd.innerHTML = `<div class="sd-label">Son qidiruvlar</div>` +
-    h.map(q => `<div class="sd-item" onclick="pickHistory('${esc(q)}')">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      ${esc(q)}
-    </div>`).join('') +
-    `<div class="sd-clear" onclick="clearHistory()">Тарихни тозалаш</div>`;
-  dd.classList.add('show');
-}
-function hideDropdown() {
-  document.getElementById('search-dropdown').classList.remove('show');
-}
-function pickHistory(q) {
-  const inp = document.getElementById('search');
-  inp.value = q;
-  hideDropdown();
-  inp.focus();
-  onSearchInput();
-}
-
-// ── URL SYNC ─────────────────────────────────────────────────────
-function pushURL(q, word) {
-  const params = new URLSearchParams();
-  if (word) params.set('word', word);
-  else if (q) params.set('q', q);
-  const url = params.toString() ? `?${params}` : location.pathname;
-  history.pushState({ q, word }, '', url);
-}
-
-function readURL() {
-  const params = new URLSearchParams(location.search);
-  return { q: params.get('q') || '', word: params.get('word') || '' };
-}
-
-function applyURL() {
-  const { q, word } = readURL();
-  const inp = document.getElementById('search');
-  if (word) {
-    inp.value = word;
-    render();
-    // after render, scroll to the word
-    setTimeout(() => {
-      const entry = entries.find(e => e.word === word);
-      if (entry) {
-        const idx = entries.indexOf(entry);
-        const el = document.getElementById(`entry-${idx}`);
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-    }, 300);
-  } else if (q) {
-    inp.value = q;
-    render();
-  }
-}
-
-window.addEventListener('popstate', () => {
-  const { q, word } = readURL();
-  const inp = document.getElementById('search');
-  inp.value = word || q || '';
-  render();
-});
-
-// ── KEYBOARD SHORTCUT ────────────────────────────────────────────
-document.addEventListener('keydown', e => {
-  // Cmd+K or / to focus search
-  if ((e.metaKey && e.key === 'k') || (e.key === '/' && document.activeElement !== document.getElementById('search'))) {
-    e.preventDefault();
-    const inp = document.getElementById('search');
-    inp.focus();
-    inp.select();
-    showDropdown();
-  }
-  // Escape to blur search
-  if (e.key === 'Escape') {
-    document.getElementById('search').blur();
-    hideDropdown();
-  }
-});
-
-// ── SEARCH INPUT HANDLER ─────────────────────────────────────────
-function onSearchInput() {
-  const q = document.getElementById('search').value.trim();
-  hideDropdown();
-  clearTimeout(timer);
-  timer = setTimeout(() => {
-    render();
-    if (q.length >= 2) {
-      pushURL(q, '');
-    } else if (!q) {
-      pushURL('', '');
-    }
-  }, 80);
-}
-
-// Search box focus/blur
-document.addEventListener('DOMContentLoaded', () => {
-  const inp = document.getElementById('search');
-  inp.addEventListener('focus', () => {
-    if (!inp.value) showDropdown();
-  });
-  inp.addEventListener('blur', () => {
-    setTimeout(hideDropdown, 150);
-  });
-  inp.addEventListener('keydown', e => {
-    if (e.key === 'Enter') {
-      const q = inp.value.trim();
-      if (q.length >= 2) addHistory(q);
-      hideDropdown();
-    }
-  });
-});
-
-// Save to history on enter or after 2s of no typing with results
-let historyTimer = null;
-function maybeAddHistory(q) {
-  clearTimeout(historyTimer);
-  if (q.length < 2) return;
-  historyTimer = setTimeout(() => addHistory(q), 2000);
-}
-
-document.getElementById('search').addEventListener('input', onSearchInput);
+document.getElementById('search').addEventListener('input',render);
 load();
 </script>
 </body>
