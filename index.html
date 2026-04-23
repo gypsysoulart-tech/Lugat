@@ -1206,7 +1206,7 @@ function buildAlpha(){
 
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 function hl(t,q){if(!q)return esc(t);const e=q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');return esc(t).replace(new RegExp(`(${e})`,'gi'),'<mark>$1</mark>')}
-function render(){clearTimeout(timer);timer=setTimeout(_render,80)}
+function render(){kbIndex=-1;clearTimeout(timer);timer=setTimeout(_render,80)}
 
 
 // Get first letter - handles multi-char letters like G' and O'
@@ -1230,20 +1230,22 @@ function buildFiltered(){
   const q=document.getElementById('search').value.trim().toLowerCase();
 
   if(!q){
-    // No query - skip object spreading, just filter by alpha if needed
     if(activeAlpha){
       return entries.reduce((acc,e,i)=>{
         if(entryLetter({...e,_i:i})===activeAlpha) acc.push({...e,_i:i,_score:0});
         return acc;
       },[]);
     }
-    // Return bare index mapping - lazy spread only when rendering
     return entries.map((e,i)=>({...e,_i:i,_score:0}));
   }
 
   const qLat=c2l(q);
   const searchRu = lang==='ru' || isRussian(q);
   const searchUz = !searchRu || lang==='uz';
+  // Compute root once for morphological matching
+  const root = q.length >= 4 ? stripSuffix(q) : q;
+  const rootLat = c2l(root);
+  const hasRoot = root !== q && root.length >= 3;
 
   const scored = [];
   entries.forEach((e,i)=>{
@@ -1262,15 +1264,15 @@ function buildFiltered(){
       else if(w.startsWith(q)||wCyr.startsWith(q)||w.startsWith(qLat)) score=Math.max(score,90);
       else if(w.includes(q)||wCyr.includes(q)||w.includes(qLat)) score=Math.max(score,70);
       else if(d.includes(q)||d.includes(qLat)) score=Math.max(score,30);
+      // Morphological match in same pass - no extra loop
+      else if(hasRoot&&(w.startsWith(root)||wCyr.startsWith(root)||w.startsWith(rootLat))) score=Math.max(score,20);
     }
     if(score>0) scored.push({...e,_i:i,_score:score});
   });
 
   scored.sort((a,b)=>b._score-a._score||disp(a.word).localeCompare(disp(b.word),'uz'));
 
-  if(activeAlpha){
-    return scored.filter(e=>entryLetter(e)===activeAlpha);
-  }
+  if(activeAlpha) return scored.filter(e=>entryLetter(e)===activeAlpha);
   return scored;
 }
 
@@ -1530,7 +1532,7 @@ function loadPrefs() {
     setTheme(p.theme || 'system', true);
     setSize(p.size || 'md', true);
     setDensity(p.density || 'normal', true);
-  } catch { }
+  } catch(e) { }
 }
 
 function savePrefs() {
@@ -1541,7 +1543,7 @@ function savePrefs() {
       density: document.documentElement.dataset.density || 'normal'
     };
     localStorage.setItem(PREFS_KEY, JSON.stringify(p));
-  } catch { }
+  } catch(e) { }
 }
 
 function setTheme(t, silent) {
@@ -1602,11 +1604,11 @@ const FAV_KEY = 'lugat_favs';
 let favs = new Set();
 
 function loadFavs() {
-  try { favs = new Set(JSON.parse(localStorage.getItem(FAV_KEY)) || []); } catch { favs = new Set(); }
+  try { favs = new Set(JSON.parse(localStorage.getItem(FAV_KEY)) || []); } catch(e) { favs = new Set(); }
   updateFavCount();
 }
 function saveFavs() {
-  try { localStorage.setItem(FAV_KEY, JSON.stringify([...favs])); } catch {}
+  try { localStorage.setItem(FAV_KEY, JSON.stringify([...favs])); } catch(e) {}
   updateFavCount();
 }
 function updateFavCount() {
@@ -1634,18 +1636,31 @@ function renderFavPanel() {
   const list = document.getElementById('fav-list');
   const favEntries = entries.filter(e => favs.has(e.word));
   document.getElementById('fav-footer-count').textContent = "" + favEntries.length + " ta so'z";
+  // Recent words
+  const _recent = getRecent();
+  const _section = document.getElementById('recent-section');
+  const _chips = document.getElementById('recent-chips');
+  if (_section && _chips) {
+    _section.style.display = _recent.length ? 'block' : 'none';
+    _chips.innerHTML = _recent.map(w => {
+      const _e = entries.find(x => x.word === w);
+      return '<button class="recent-chip" data-w="'+esc(w)+'" onclick="jumpToWord(this.dataset.w)">' + esc(_e ? disp(_e.word) : w) + '</button>';
+    }).join('');
+  }
   if (!favEntries.length) {
     list.innerHTML = '<div class="fav-empty">Hali hech narsa saqlanmagan.<br>★ tugmasini bosing.</div>';
     return;
   }
-  list.innerHTML = favEntries.map(e => `
-    <div class="fav-entry" onclick="jumpToWord('${esc(e.word)}')">
-      <div class="fav-entry-word">${esc(disp(e.word))}</div>
-      ${e.ru ? `<div class="fav-entry-ru">${esc(e.ru)}</div>` : ''}
-    </div>`).join('');
+  list.innerHTML = favEntries.map(e => {
+    const ruDiv = e.ru ? '<div class="fav-entry-ru">'+esc(e.ru)+'</div>' : '';
+    return '<div class="fav-entry" onclick="jumpToWord(this.dataset.w)" data-w="'+esc(e.word)+'">'
+      +'<div class="fav-entry-word">'+esc(disp(e.word))+'</div>'
+      +ruDiv
+      +'</div>';
+  }).join('');
 }
 function clearFavs() {
-  if (!confirm("Barcha saqlangan so'zlarni o'chirish?")) return;
+  if (!confirm('Barchasini uchirish?')) return;
   favs.clear(); saveFavs();
   document.querySelectorAll('.fav-btn.active').forEach(b => b.classList.remove('active'));
   renderFavPanel();
@@ -1665,16 +1680,6 @@ function jumpToWord(word) {
 }
 
 // ── EXPAND ENTRY ─────────────────────────────────────────────────
-function expandEntry(event, i) {
-  if (event.target.closest('.entry-actions') || event.target.closest('.inline-editor') || event.target.closest('.fav-btn')) return;
-  const el = document.getElementById(`entry-${i}`);
-  if (!el) return;
-  const isExpanded = el.classList.contains('expanded');
-  el.classList.toggle('expanded', !isExpanded);
-  const hint = document.getElementById(`hint-${i}`);
-  if (hint) hint.textContent = isExpanded ? '&#x25be; Ko\'proq' : 'Yopish ↑';
-}
-
 // ── COPY ENTRY ───────────────────────────────────────────────────
 let toastTimer = null;
 function copyEntry(i) {
@@ -1698,17 +1703,17 @@ const MAX_HISTORY = 10;
 
 function getHistory() {
   try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; }
-  catch { return []; }
+  catch(e) { return []; }
 }
 function addHistory(q) {
   if (!q || q.length < 2) return;
   let h = getHistory().filter(x => x !== q);
   h.unshift(q);
   h = h.slice(0, MAX_HISTORY);
-  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(h)); } catch {}
+  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(h)); } catch(e) {}
 }
 function clearHistory() {
-  try { localStorage.removeItem(HISTORY_KEY); } catch {}
+  try { localStorage.removeItem(HISTORY_KEY); } catch(e) {}
   hideDropdown();
 }
 
@@ -1797,7 +1802,9 @@ document.addEventListener('keydown', e => {
 // ── SEARCH INPUT HANDLER ─────────────────────────────────────────
 function onSearchInput() {
   const q = document.getElementById('search').value.trim();
-  hideDropdown();
+  // Show suggestions while typing, history only when empty
+  if (q.length >= 2) showSuggestions(q.toLowerCase());
+  else { hideDropdown(); if (!q) showDropdown(); }
   clearTimeout(timer);
   timer = setTimeout(() => {
     render();
@@ -1921,29 +1928,7 @@ function pickSuggestion(word) {
 
 // ── ENHANCED SEARCH - add morphological matching ─────────────────
 // Patch buildFiltered to also match via root
-const _origBuildFiltered = buildFiltered;
-function buildFiltered() {
-  const q = document.getElementById('search').value.trim().toLowerCase();
-  const result = _origBuildFiltered();
-
-  // If we got fewer than 10 results and q is long enough, try root matching
-  if (q.length >= 4 && result.length < 10) {
-    const root = stripSuffix(q);
-    if (root !== q && root.length >= 3) {
-      const seen = new Set(result.map(e => e.word));
-      entries.forEach((e, i) => {
-        if (seen.has(e.word)) return;
-        const w = (e._lat || disp(e.word)).toLowerCase();
-        const wc = e.word.toLowerCase();
-        if (w.startsWith(root) || wc.startsWith(root)) {
-          result.push({...e, _i: i, _score: 20});
-          seen.add(e.word);
-        }
-      });
-    }
-  }
-  return result;
-}
+// morphological search integrated into buildFiltered directly
 
 // ── RELATED WORDS ────────────────────────────────────────────────
 function getRelated(word, idx) {
@@ -1960,7 +1945,7 @@ function getRelated(word, idx) {
 }
 
 // Patch expandEntry to show related words
-const _origExpandEntry = expandEntry;
+// expandEntry enhanced below
 function expandEntry(event, i) {
   if (event.target.closest('.entry-actions') || event.target.closest('.inline-editor') || event.target.closest('.fav-btn')) return;
   const el = document.getElementById(`entry-${i}`);
@@ -2017,34 +2002,22 @@ const RECENT_KEY = 'lugat_recent';
 const MAX_RECENT = 20;
 
 function getRecent() {
-  try { return JSON.parse(localStorage.getItem(RECENT_KEY)) || []; } catch { return []; }
+  try { return JSON.parse(localStorage.getItem(RECENT_KEY)) || []; } catch(e) { return []; }
 }
 function addRecent(word) {
   let r = getRecent().filter(w => w !== word);
   r.unshift(word);
   r = r.slice(0, MAX_RECENT);
-  try { localStorage.setItem(RECENT_KEY, JSON.stringify(r)); } catch {}
+  try { localStorage.setItem(RECENT_KEY, JSON.stringify(r)); } catch(e) {}
   if (document.getElementById('fav-panel').classList.contains('open')) renderFavPanel();
 }
 function clearRecent() {
-  try { localStorage.removeItem(RECENT_KEY); } catch {}
+  try { localStorage.removeItem(RECENT_KEY); } catch(e) {}
   renderFavPanel();
 }
 
 // Patch renderFavPanel to show recent words
-const _origRenderFavPanel = renderFavPanel;
-function renderFavPanel() {
-  _origRenderFavPanel();
-  const recent = getRecent();
-  const section = document.getElementById('recent-section');
-  const chips = document.getElementById('recent-chips');
-  if (!section || !chips) return;
-  section.style.display = recent.length ? 'block' : 'none';
-  chips.innerHTML = recent.map(w => {
-    const e = entries.find(x => x.word === w);
-    return `<button class="recent-chip" onclick="jumpToWord('${esc(w)}')">${esc(e ? disp(e.word) : w)}</button>`;
-  }).join('');
-}
+// recent words merged into renderFavPanel
 
 // ── KEYBOARD NAVIGATION ──────────────────────────────────────────
 let kbIndex = -1;
@@ -2090,27 +2063,9 @@ document.addEventListener('keydown', e => {
 });
 
 // Reset kb index on new render
-const _origRender = render;
-function render() {
-  kbIndex = -1;
-  _origRender();
-}
+// kbIndex reset integrated into render()
 
 // ── UPDATE onSearchInput TO SHOW SUGGESTIONS ─────────────────────
-const _origOnSearchInput = onSearchInput;
-function onSearchInput() {
-  const q = document.getElementById('search').value.trim().toLowerCase();
-  showSuggestions(q);
-  _origOnSearchInput();
-}
-
-// Re-patch focus to show suggestions not history when typing
-document.getElementById('search').addEventListener('focus', () => {
-  const q = document.getElementById('search').value.trim();
-  if (q.length >= 2) showSuggestions(q);
-  else if (!q) showDropdown();
-});
-
 // ── PWA SERVICE WORKER ───────────────────────────────────────────
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
