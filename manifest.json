@@ -1,0 +1,24 @@
+{
+  "name": "O'zbek tilining izohli lug'ati",
+  "short_name": "O'zbek Lug'at",
+  "description": "O'zbek tilining izohli lug'ati - 26,000+ so'z, rus tarjimasi bilan",
+  "start_url": "/Lugat/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#007AFF",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='42' fill='%23007AFF'/><text x='96' y='130' font-family='system-ui,sans-serif' font-size='90' font-weight='700' fill='white' text-anchor='middle'>O</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='112' fill='%23007AFF'/><text x='256' y='346' font-family='system-ui,sans-serif' font-size='240' font-weight='700' fill='white' text-anchor='middle'>O</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ],
+  "categories": ["education", "reference"],
+  "lang": "uz"
+}

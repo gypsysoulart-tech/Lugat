@@ -2,6 +2,11 @@
 <html lang="uz">
 <head>
 <meta charset="UTF-8">
+<meta name="theme-color" content="#007AFF">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="O'zbek Lug'ati">
+<link rel="manifest" href="manifest.json">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>O'zbek lug'ati</title>
 
@@ -828,6 +833,100 @@ mark { background: var(--yellow-light); color: var(--text); border-radius: 3px; 
 }
 .bn-badge.show { display: block; }
 
+
+/* ── SHARE BUTTON ── */
+.share-btn {
+  background: none; border: none;
+  cursor: pointer; padding: 2px 4px;
+  color: var(--text4);
+  font-size: 13px; line-height: 1;
+  transition: color .15s;
+  flex-shrink: 0;
+}
+.share-btn:hover { color: var(--blue); }
+
+/* ── SEARCH SUGGESTIONS ── */
+.suggestion-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text);
+  transition: background .08s;
+  border-bottom: 0.5px solid var(--separator2);
+}
+.suggestion-item:last-child { border-bottom: none; }
+.suggestion-item:hover { background: var(--surface2); }
+.suggestion-word { font-weight: 600; font-family: var(--font-mono); font-size: 13px; }
+.suggestion-ru { font-size: 12px; color: var(--blue); margin-left: auto; white-space: nowrap; }
+
+/* ── RELATED WORDS ── */
+.related-words {
+  display: none;
+  grid-column: 1 / -1;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 0.5px solid var(--separator2);
+}
+.entry.expanded .related-words { display: block; }
+.related-label {
+  font-size: 11px; font-weight: 600;
+  color: var(--text3); text-transform: uppercase;
+  letter-spacing: .05em; margin-bottom: 8px;
+}
+.related-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.related-chip {
+  padding: 4px 10px;
+  background: var(--blue-light);
+  color: var(--blue-text);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  transition: background .1s;
+  border: none;
+}
+.related-chip:hover { background: var(--blue); color: #fff; }
+
+/* ── RECENT WORDS ── */
+.recent-section {
+  padding: 12px 20px;
+  border-bottom: 0.5px solid var(--separator2);
+}
+.recent-label {
+  font-size: 11px; font-weight: 600;
+  color: var(--text3); text-transform: uppercase;
+  letter-spacing: .05em; margin-bottom: 8px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.recent-clear-btn { font-size: 11px; color: var(--red); cursor: pointer; background: none; border: none; font-family: var(--font); font-weight: 500; }
+.recent-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.recent-chip {
+  padding: 3px 9px;
+  background: var(--surface2);
+  border-radius: 20px;
+  font-size: 12px;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  transition: background .1s;
+  border: none;
+  color: var(--text2);
+}
+.recent-chip:hover { background: var(--surface3); color: var(--text); }
+
+/* ── KEYBOARD FOCUS ── */
+.entry.kb-focus {
+  background: var(--blue-light);
+  margin: 0 -12px;
+  padding: var(--entry-padding) 12px;
+  border-radius: var(--r-md);
+  outline: 2px solid var(--blue);
+  outline-offset: -2px;
+}
+
 /* ── SCROLLBAR ── */
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -991,7 +1090,7 @@ mark { background: var(--yellow-light); color: var(--text); border-radius: 3px; 
     <h2>★ Saqlangan so'zlar</h2>
     <button class="fav-close" onclick="toggleFavPanel()">✕</button>
   </div>
-  <div class="fav-list" id="fav-list"></div>
+  <div class="recent-section" id="recent-section" style="display:none"><div class="recent-label">So'nggi ko'rilganlar <button class="recent-clear-btn" onclick="clearRecent()">Tozalash</button></div><div class="recent-chips" id="recent-chips"></div></div><div class="fav-list" id="fav-list"></div>
   <div class="fav-footer">
     <span id="fav-footer-count">0 ta so'z</span>
     <button class="fav-clear" onclick="clearFavs()">Barchasini o'chirish</button>
@@ -1203,7 +1302,7 @@ function entryHTML(e,q){
     +'<div class="entry-left">'
     +'<div style="display:flex;align-items:center;gap:6px">'
     +'<div class="entry-word" id="word-'+i+'">'+hl(w,lang==='uz'?q:'')+'</div>'
-    +'<button class="'+favClass+'" id="fav-'+i+'" onclick="event.stopPropagation();toggleFav('+i+')" title="Saqlash">\u2605</button>'
+    +'<button class="'+favClass+'" id="fav-'+i+'" onclick="event.stopPropagation();toggleFav('+i+')" title="Saqlash">\u2605</button>'+'<button class="share-btn" onclick="event.stopPropagation();shareEntry('+i+')" title="Ulashish">'+'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>'+'</button>'
     +'</div>'
     +'<div class="'+ruClass+'" id="ru-'+i+'">'+(ru?hl(ru,lang==='ru'?q:''): '\u2014')+'</div>'
     +'</div>'
@@ -1212,7 +1311,7 @@ function entryHTML(e,q){
     +expandBtn
     +'</div>'
     +'<div class="entry-actions">'+actions+'</div>'
-    +'<div class="inline-editor" id="ied-'+i+'"></div>'
+    +'<div class="related-words" id="related-'+i+'"></div>'+'<div class="inline-editor" id="ied-'+i+'"></div>'
     +'</div>';
 }
 
@@ -1734,6 +1833,289 @@ function maybeAddHistory(q) {
   clearTimeout(historyTimer);
   if (q.length < 2) return;
   historyTimer = setTimeout(() => addHistory(q), 2000);
+}
+
+// ── MORPHOLOGICAL SEARCH ─────────────────────────────────────────
+// Common Uzbek suffixes to strip for root matching
+const UZ_SUFFIXES = [
+  'larning','larga','lardan','larda','larni','lar',
+  'ning','ndan','nga','nda','ni','dan','da','ga','ni',
+  'lik','lik','chi','chilik','siz','sizlik','li','lamoq',
+  'moq','ish','ish','uvchi','adigan','ydigan','digan',
+  'gan','kan','qan','ayotgan','yotgan','otgan',
+  'adi','ydi','di','di','ibdi','ipti',
+  'aman','yman','san','ysan','miz','ymiz','siz','ysiz',
+  'imiz','ingiz','ingizni','ingizga','ingizdan',
+  'im','ing','i','imni','ingni',
+  'roq','gina','kina','qina','oq','yoq',
+  'lab','lashib','lashmoq','lashtirmoq',
+];
+
+function stripSuffix(word) {
+  const w = word.toLowerCase();
+  for (const sfx of UZ_SUFFIXES) {
+    if (w.endsWith(sfx) && w.length - sfx.length >= 3) {
+      return w.slice(0, w.length - sfx.length);
+    }
+  }
+  return w;
+}
+
+// ── SEARCH SUGGESTIONS ───────────────────────────────────────────
+function showSuggestions(q) {
+  const dd = document.getElementById('search-dropdown');
+  if (!q || q.length < 2) { hideSuggestions(); return; }
+
+  const ql = c2l(q);
+  const root = stripSuffix(q);
+  const suggestions = [];
+  const seen = new Set();
+
+  for (const e of entries) {
+    if (suggestions.length >= 7) break;
+    const w = disp(e.word).toLowerCase();
+    const wc = e.word.toLowerCase();
+    if ((w.startsWith(q) || wc.startsWith(q) || w.startsWith(ql)) && !seen.has(e.word)) {
+      suggestions.push(e);
+      seen.add(e.word);
+    }
+  }
+  // Also add morphological matches
+  if (suggestions.length < 7 && root !== q) {
+    for (const e of entries) {
+      if (suggestions.length >= 7) break;
+      const w = disp(e.word).toLowerCase();
+      if (w.startsWith(root) && !seen.has(e.word)) {
+        suggestions.push(e);
+        seen.add(e.word);
+      }
+    }
+  }
+
+  if (!suggestions.length) { hideSuggestions(); return; }
+
+  dd.innerHTML = suggestions.map(e => {
+    const w = disp(e.word);
+    const ru = e.ru || '';
+    return `<div class="suggestion-item" onclick="pickSuggestion('${esc(e.word)}')">
+      <span class="suggestion-word">${esc(w)}</span>
+      ${ru ? `<span class="suggestion-ru">${esc(ru)}</span>` : ''}
+    </div>`;
+  }).join('');
+
+  dd.classList.add('show');
+}
+
+function hideSuggestions() {
+  document.getElementById('search-dropdown').classList.remove('show');
+}
+
+function pickSuggestion(word) {
+  const inp = document.getElementById('search');
+  inp.value = disp(word);
+  hideSuggestions();
+  render();
+  pushURL(inp.value, '');
+  addHistory(inp.value);
+}
+
+// ── ENHANCED SEARCH - add morphological matching ─────────────────
+// Patch buildFiltered to also match via root
+const _origBuildFiltered = buildFiltered;
+function buildFiltered() {
+  const q = document.getElementById('search').value.trim().toLowerCase();
+  const result = _origBuildFiltered();
+
+  // If we got fewer than 10 results and q is long enough, try root matching
+  if (q.length >= 4 && result.length < 10) {
+    const root = stripSuffix(q);
+    if (root !== q && root.length >= 3) {
+      const seen = new Set(result.map(e => e.word));
+      entries.forEach((e, i) => {
+        if (seen.has(e.word)) return;
+        const w = (e._lat || disp(e.word)).toLowerCase();
+        const wc = e.word.toLowerCase();
+        if (w.startsWith(root) || wc.startsWith(root)) {
+          result.push({...e, _i: i, _score: 20});
+          seen.add(e.word);
+        }
+      });
+    }
+  }
+  return result;
+}
+
+// ── RELATED WORDS ────────────────────────────────────────────────
+function getRelated(word, idx) {
+  const w = disp(word).toLowerCase();
+  const prefix = w.slice(0, Math.max(4, Math.floor(w.length * 0.6)));
+  const related = [];
+  for (const e of entries) {
+    if (e.word === word) continue;
+    if (related.length >= 8) break;
+    const ew = disp(e.word).toLowerCase();
+    if (ew.startsWith(prefix) && ew !== w) related.push(e);
+  }
+  return related;
+}
+
+// Patch expandEntry to show related words
+const _origExpandEntry = expandEntry;
+function expandEntry(event, i) {
+  if (event.target.closest('.entry-actions') || event.target.closest('.inline-editor') || event.target.closest('.fav-btn')) return;
+  const el = document.getElementById(`entry-${i}`);
+  if (!el) return;
+  const isExpanded = el.classList.contains('expanded');
+  el.classList.toggle('expanded', !isExpanded);
+  const hint = document.getElementById(`hint-${i}`);
+  if (hint) hint.textContent = isExpanded ? '&#x25be; Ko\'proq' : 'Yopish ↑';
+
+  if (!isExpanded) {
+    // Add to recent words
+    addRecent(entries[i].word);
+    // Show related words
+    const relDiv = document.getElementById(`related-${i}`);
+    if (relDiv && !relDiv.dataset.loaded) {
+      const related = getRelated(entries[i].word, i);
+      if (related.length) {
+        relDiv.innerHTML = `<div class="related-label">Tegishli so'zlar</div>
+          <div class="related-list">${related.map(r =>
+            `<button class="related-chip" onclick="searchWord('${esc(r.word)}')">${esc(disp(r.word))}</button>`
+          ).join('')}</div>`;
+      } else {
+        relDiv.style.display = 'none';
+      }
+      relDiv.dataset.loaded = '1';
+    }
+  }
+}
+
+function searchWord(word) {
+  const inp = document.getElementById('search');
+  inp.value = disp(word);
+  hideSuggestions();
+  render();
+  pushURL(inp.value, '');
+}
+
+// ── SHARE ────────────────────────────────────────────────────────
+function shareEntry(i) {
+  const e = entries[i];
+  const word = e.word;
+  const url = location.origin + location.pathname + '?word=' + encodeURIComponent(word);
+  const text = disp(word) + (e.ru ? ' — ' + e.ru : '') + '\n' + disp(e.def).slice(0, 200);
+
+  if (navigator.share) {
+    navigator.share({ title: disp(word), text, url }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(url).then(() => showToast('Havola nusxalandi ✓'));
+  }
+}
+
+// ── RECENT WORDS ─────────────────────────────────────────────────
+const RECENT_KEY = 'lugat_recent';
+const MAX_RECENT = 20;
+
+function getRecent() {
+  try { return JSON.parse(localStorage.getItem(RECENT_KEY)) || []; } catch { return []; }
+}
+function addRecent(word) {
+  let r = getRecent().filter(w => w !== word);
+  r.unshift(word);
+  r = r.slice(0, MAX_RECENT);
+  try { localStorage.setItem(RECENT_KEY, JSON.stringify(r)); } catch {}
+  if (document.getElementById('fav-panel').classList.contains('open')) renderFavPanel();
+}
+function clearRecent() {
+  try { localStorage.removeItem(RECENT_KEY); } catch {}
+  renderFavPanel();
+}
+
+// Patch renderFavPanel to show recent words
+const _origRenderFavPanel = renderFavPanel;
+function renderFavPanel() {
+  _origRenderFavPanel();
+  const recent = getRecent();
+  const section = document.getElementById('recent-section');
+  const chips = document.getElementById('recent-chips');
+  if (!section || !chips) return;
+  section.style.display = recent.length ? 'block' : 'none';
+  chips.innerHTML = recent.map(w => {
+    const e = entries.find(x => x.word === w);
+    return `<button class="recent-chip" onclick="jumpToWord('${esc(w)}')">${esc(e ? disp(e.word) : w)}</button>`;
+  }).join('');
+}
+
+// ── KEYBOARD NAVIGATION ──────────────────────────────────────────
+let kbIndex = -1;
+
+function getVisibleEntries() {
+  return Array.from(document.querySelectorAll('.entry[id^="entry-"]'));
+}
+
+function kbMove(dir) {
+  const els = getVisibleEntries();
+  if (!els.length) return;
+  els[kbIndex]?.classList.remove('kb-focus');
+  kbIndex = Math.max(0, Math.min(els.length - 1, kbIndex + dir));
+  const el = els[kbIndex];
+  el.classList.add('kb-focus');
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function kbSelect() {
+  const els = getVisibleEntries();
+  if (kbIndex >= 0 && kbIndex < els.length) {
+    const el = els[kbIndex];
+    const i = parseInt(el.id.replace('entry-', ''));
+    expandEntry({ target: el, stopPropagation: () => {} }, i);
+  }
+}
+
+document.addEventListener('keydown', e => {
+  const inp = document.getElementById('search');
+  const inSearch = document.activeElement === inp;
+
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    if (inSearch) { inp.blur(); kbIndex = -1; }
+    kbMove(1);
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    kbMove(-1);
+  } else if (e.key === 'Enter' && !inSearch) {
+    e.preventDefault();
+    kbSelect();
+  }
+});
+
+// Reset kb index on new render
+const _origRender = render;
+function render() {
+  kbIndex = -1;
+  _origRender();
+}
+
+// ── UPDATE onSearchInput TO SHOW SUGGESTIONS ─────────────────────
+const _origOnSearchInput = onSearchInput;
+function onSearchInput() {
+  const q = document.getElementById('search').value.trim().toLowerCase();
+  showSuggestions(q);
+  _origOnSearchInput();
+}
+
+// Re-patch focus to show suggestions not history when typing
+document.getElementById('search').addEventListener('focus', () => {
+  const q = document.getElementById('search').value.trim();
+  if (q.length >= 2) showSuggestions(q);
+  else if (!q) showDropdown();
+});
+
+// ── PWA SERVICE WORKER ───────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/Lugat/sw.js').catch(() => {});
+  });
 }
 
 document.getElementById('search').addEventListener('input', onSearchInput);
