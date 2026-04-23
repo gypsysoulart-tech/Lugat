@@ -976,6 +976,8 @@ const patches={};
 
 function c2l(s){let r=s;for(const[c,l]of CYR_MAP)r=r.split(c).join(l);return r}
 function disp(s){return script==='lat'?c2l(s||''):(s||'')}
+function dispE(e){return script==='lat'?(e._lat||c2l(e.word)):(e.word)}
+function dispDef(e){return script==='lat'?(e._defLat||c2l(e.def)):(e.def)}
 
 // Cyrillic → Latin letter equivalents
 const CYR_TO_LAT_LETTER = {
@@ -1070,18 +1072,28 @@ function isRussian(s){ return /[а-яёА-ЯЁ]/.test(s) && !/[ғҳқўҒҲҚЎ]
 
 function buildFiltered(){
   const q=document.getElementById('search').value.trim().toLowerCase();
-  if(!q) return entries.map((e,i)=>({...e,_i:i,_score:0}));
+
+  if(!q){
+    // No query - skip object spreading, just filter by alpha if needed
+    if(activeAlpha){
+      return entries.reduce((acc,e,i)=>{
+        if(entryLetter({...e,_i:i})===activeAlpha) acc.push({...e,_i:i,_score:0});
+        return acc;
+      },[]);
+    }
+    // Return bare index mapping - lazy spread only when rendering
+    return entries.map((e,i)=>({...e,_i:i,_score:0}));
+  }
 
   const qLat=c2l(q);
-  // Auto-detect Russian: if query has Cyrillic but no Uzbek-specific letters
   const searchRu = lang==='ru' || isRussian(q);
   const searchUz = !searchRu || lang==='uz';
 
   const scored = [];
   entries.forEach((e,i)=>{
-    const w=disp(e.word).toLowerCase();
+    const w=(e._lat||disp(e.word)).toLowerCase();
     const wCyr=e.word.toLowerCase();
-    const d=disp(e.def).toLowerCase();
+    const d=(e._defLat||disp(e.def)).toLowerCase();
     const ru=(e.ru||'').toLowerCase();
     let score=0;
 
@@ -1098,15 +1110,10 @@ function buildFiltered(){
     if(score>0) scored.push({...e,_i:i,_score:score});
   });
 
-  // Sort by score descending, then alphabetically
   scored.sort((a,b)=>b._score-a._score||disp(a.word).localeCompare(disp(b.word),'uz'));
 
-  // Alpha filter applied after scoring
   if(activeAlpha){
-    return scored.filter(e=>{
-      const src=entryLetter(e);
-      return src===activeAlpha;
-    });
+    return scored.filter(e=>entryLetter(e)===activeAlpha);
   }
   return scored;
 }
@@ -1291,6 +1298,7 @@ async function load(){
     document.getElementById('pf').style.width='80%';
     const raw=await resp.json();
     entries=Array.isArray(raw)?raw:Object.values(raw);
+    entries.forEach(e=>{e._lat=c2l(e.word);e._defLat=c2l(e.def);});
     document.getElementById('pf').style.width='100%';
     document.getElementById('h-count').textContent=entries.length.toLocaleString()+" so'z";
     const _hasRu=entries.some(e=>e.ru);
@@ -1301,7 +1309,7 @@ async function load(){
     loadFavs();
     buildAlpha();
     applyURL();
-    if(!document.getElementById('search').value) render();
+    if(!document.getElementById('search').value) requestAnimationFrame(()=>requestAnimationFrame(render));
   }catch(err){
     document.getElementById('status-txt').textContent='Xato: '+err.message;
     document.getElementById('pf').style.background='#dc2626';
