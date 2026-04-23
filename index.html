@@ -111,6 +111,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100dvh;
+  overflow-x: hidden;
 }
 
 /* ── LAYOUT ── */
@@ -252,6 +253,7 @@ body {
 }
 .search-wrap {
   flex: 1;
+  min-width: 0;
   max-width: 600px;
   position: relative;
 }
@@ -783,8 +785,21 @@ mark { background: var(--yellow-light); color: var(--text); border-radius: 3px; 
   .topbar { padding: 0 16px; height: 48px; }
   .brand-name { display: none; }
   .topbar-right { display: none; }
-  .searchbar { padding: 8px 16px; top: 48px; }
-  .alphabar { padding: 0 12px; }
+  .searchbar {
+    padding: 8px 16px;
+    top: 48px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .search-wrap { flex: 1; min-width: 0; max-width: 100%; }
+  /* show script/lang toggles below search on mobile */
+  .mobile-controls {
+    display: flex !important;
+    width: 100%;
+    gap: 6px;
+    padding-bottom: 2px;
+  }
+  .alphabar { padding: 0 12px; justify-content: flex-start; }
   #main { padding: 4px 16px 90px; }
   .entry { grid-template-columns: 1fr; }
   .entry-left { padding-right: 0; margin-bottom: 4px; }
@@ -795,6 +810,9 @@ mark { background: var(--yellow-light); color: var(--text); border-radius: 3px; 
   .copy-toast { bottom: 76px; }
   .bottom-nav { display: flex; }
 }
+
+/* mobile controls row - hidden on desktop */
+.mobile-controls { display: none; }
 </style>
 </head>
 <body>
@@ -838,6 +856,17 @@ mark { background: var(--yellow-light); color: var(--text); border-radius: 3px; 
     <div class="search-dropdown" id="search-dropdown"></div>
   </div>
   <span class="result-badge" id="rc"></span>
+  <!-- mobile only: script + lang toggles -->
+  <div class="mobile-controls">
+    <div class="seg" id="script-seg-m">
+      <button class="active" onclick="setScript('lat')">Lotin</button>
+      <button onclick="setScript('cyr')">Кирилл</button>
+    </div>
+    <div class="seg" id="lang-seg-m">
+      <button class="active" onclick="setLang('uz')">O'zbek</button>
+      <button id="btn-ru-m" onclick="setLang('ru')">Rus</button>
+    </div>
+  </div>
 </div>
 
 <!-- ALPHA BAR -->
@@ -963,19 +992,23 @@ const LAT_TO_CYR_LETTER = {
 
 function setScript(s){
   if(activeAlpha){
-    const mapped = s==='lat'
-      ? CYR_TO_LAT_LETTER[activeAlpha]
-      : LAT_TO_CYR_LETTER[activeAlpha];
+    const mapped = s==='lat' ? CYR_TO_LAT_LETTER[activeAlpha] : LAT_TO_CYR_LETTER[activeAlpha];
     activeAlpha = mapped || null;
   }
   script=s;
-  document.getElementById('script-seg').querySelectorAll('button').forEach((b,i)=>b.classList.toggle('active',(i===0&&s==='lat')||(i===1&&s==='cyr')));
+  ['script-seg','script-seg-m'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.querySelectorAll('button').forEach((b,i)=>b.classList.toggle('active',(i===0&&s==='lat')||(i===1&&s==='cyr')));
+  });
   document.getElementById('search').placeholder=lang==='ru'?'Поиск на русском...':(s==='lat'?"So'z qidiring...":'Сўз қидиринг...');
   buildAlpha();render();
 }
 function setLang(l){
   lang=l;
-  document.getElementById('lang-seg').querySelectorAll('button').forEach((b,i)=>b.classList.toggle('active',(i===0&&l==='uz')||(i===1&&l==='ru')));
+  ['lang-seg','lang-seg-m'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.querySelectorAll('button').forEach((b,i)=>b.classList.toggle('active',(i===0&&l==='uz')||(i===1&&l==='ru')));
+  });
   document.getElementById('search').placeholder=l==='ru'?'Поиск на русском...':(script==='lat'?"So'z qidiring...":'Сўз қидиринг...');
   activeAlpha=null;buildAlpha();render();
 }
@@ -1016,20 +1049,50 @@ function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace
 function hl(t,q){if(!q)return esc(t);const e=q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');return esc(t).replace(new RegExp(`(${e})`,'gi'),'<mark>$1</mark>')}
 function render(){clearTimeout(timer);timer=setTimeout(_render,80)}
 
+function isCyrillic(s){ return /[а-яёА-ЯЁ]/.test(s); }
+function isRussian(s){ return /[а-яёА-ЯЁ]/.test(s) && !/[ғҳқўҒҲҚЎ]/.test(s); }
+
 function buildFiltered(){
   const q=document.getElementById('search').value.trim().toLowerCase();
-  let f=entries.map((e,i)=>({...e,_i:i})).filter(e=>{
-    if(lang==='ru')return(e.ru||'').toLowerCase().includes(q);
-    const w=disp(e.word).toLowerCase(),d=disp(e.def).toLowerCase(),ql=c2l(q);
-    return w.includes(q)||d.includes(q)||w.includes(ql)||d.includes(ql);
+  if(!q) return entries.map((e,i)=>({...e,_i:i,_score:0}));
+
+  const qLat=c2l(q);
+  // Auto-detect Russian: if query has Cyrillic but no Uzbek-specific letters
+  const searchRu = lang==='ru' || isRussian(q);
+  const searchUz = !searchRu || lang==='uz';
+
+  const scored = [];
+  entries.forEach((e,i)=>{
+    const w=disp(e.word).toLowerCase();
+    const wCyr=e.word.toLowerCase();
+    const d=disp(e.def).toLowerCase();
+    const ru=(e.ru||'').toLowerCase();
+    let score=0;
+
+    if(searchRu && ru){
+      if(ru.startsWith(q)) score=100;
+      else if(ru.includes(q)) score=60;
+    }
+    if(searchUz){
+      if(w===q||wCyr===q) score=Math.max(score,100);
+      else if(w.startsWith(q)||wCyr.startsWith(q)||w.startsWith(qLat)) score=Math.max(score,90);
+      else if(w.includes(q)||wCyr.includes(q)||w.includes(qLat)) score=Math.max(score,70);
+      else if(d.includes(q)||d.includes(qLat)) score=Math.max(score,30);
+    }
+    if(score>0) scored.push({...e,_i:i,_score:score});
   });
+
+  // Sort by score descending, then alphabetically
+  scored.sort((a,b)=>b._score-a._score||disp(a.word).localeCompare(disp(b.word),'uz'));
+
+  // Alpha filter applied after scoring
   if(activeAlpha){
-    f=f.filter(e=>{
+    return scored.filter(e=>{
       const src=lang==='ru'?(e.ru||'').charAt(0).toUpperCase():disp(e.word).charAt(0).toUpperCase();
       return src===activeAlpha;
     });
   }
-  return f;
+  return scored;
 }
 
 function entryHTML(e,q){
@@ -1079,28 +1142,35 @@ function renderPage(filtered,page,q,append){
   const start=page*pageSize,end=start+pageSize;
   const slice=filtered.slice(start,end);
   if(!slice.length)return;
-  const grouped={};
-  for(const e of slice){
-    const l=lang==='ru'?(e.ru||'?').charAt(0).toUpperCase():disp(e.word).charAt(0).toUpperCase();
-    if(!grouped[l])grouped[l]=[];
-    grouped[l].push(e);
-  }
+
   let html='';
-  for(const letter of Object.keys(grouped).sort((a,b)=>a.localeCompare(b,'uz'))){
-    const firstIdx=filtered.findIndex(e=>{
+  // When searching, show flat list (sorted by score). When browsing, group by letter.
+  if(q){
+    for(const e of slice) html+=entryHTML(e,q);
+  } else {
+    const grouped={};
+    for(const e of slice){
       const l=lang==='ru'?(e.ru||'?').charAt(0).toUpperCase():disp(e.word).charAt(0).toUpperCase();
-      return l===letter;
-    });
-    if(firstIdx>=start&&firstIdx<end){
-      html+=`<div class="letter-group" id="lg-${letter}"><div class="letter-head">${esc(letter)}</div>`;
-    } else {
-      const ex=document.getElementById(`lg-${letter}`);
-      if(ex){for(const e of grouped[letter])ex.insertAdjacentHTML('beforeend',entryHTML(e,q));continue;}
-      html+=`<div class="letter-group" id="lg-${letter}">`;
+      if(!grouped[l])grouped[l]=[];
+      grouped[l].push(e);
     }
-    for(const e of grouped[letter])html+=entryHTML(e,q);
-    html+='</div>';
+    for(const letter of Object.keys(grouped).sort((a,b)=>a.localeCompare(b,'uz'))){
+      const firstIdx=filtered.findIndex(e=>{
+        const l=lang==='ru'?(e.ru||'?').charAt(0).toUpperCase():disp(e.word).charAt(0).toUpperCase();
+        return l===letter;
+      });
+      if(firstIdx>=start&&firstIdx<end){
+        html+=`<div class="letter-group" id="lg-${letter}"><div class="letter-head">${esc(letter)}</div>`;
+      } else {
+        const ex=document.getElementById(`lg-${letter}`);
+        if(ex){for(const e of grouped[letter])ex.insertAdjacentHTML('beforeend',entryHTML(e,q));continue;}
+        html+=`<div class="letter-group" id="lg-${letter}">`;
+      }
+      for(const e of grouped[letter])html+=entryHTML(e,q);
+      html+='</div>';
+    }
   }
+
   const sentinel=document.getElementById('scroll-sentinel');
   if(sentinel)sentinel.remove();
   if(append)main.insertAdjacentHTML('beforeend',html);
@@ -1122,7 +1192,7 @@ function _render(){
   if(observer){observer.disconnect();observer=null;}
   filteredCache=buildFiltered();
   const total=filteredCache.length;
-  document.getElementById('rc').textContent=total?`${total.toLocaleString()} natija`:'';
+  document.getElementById('rc').textContent=total&&q?`${total.toLocaleString()} natija`:'';
   if(q.length>=2) maybeAddHistory(q);
   if(!filteredCache.length){
     main.innerHTML='<div class="empty-state"><div class="empty-icon">🔍</div><p>Hech narsa topilmadi</p></div>';
@@ -1207,7 +1277,9 @@ async function load(){
     entries=Array.isArray(raw)?raw:Object.values(raw);
     document.getElementById('pf').style.width='100%';
     document.getElementById('h-count').textContent=entries.length.toLocaleString()+" so'z";
-    document.getElementById('btn-ru').disabled=!entries.some(e=>e.ru);
+    const _hasRu=entries.some(e=>e.ru);
+    document.getElementById('btn-ru').disabled=!_hasRu;
+    const _bruM=document.getElementById('btn-ru-m');if(_bruM)_bruM.disabled=!_hasRu;
     status.classList.remove('show');
     loadPrefs();
     loadFavs();
@@ -1238,10 +1310,11 @@ function bnSearch() {
 }
 
 function bnAlpha() {
-  alphaVisible = !alphaVisible;
   const bar = document.getElementById('alpha-bar');
+  alphaVisible = !alphaVisible;
   bar.style.display = alphaVisible ? '' : 'none';
-  bnSetActive(alphaVisible ? 'bn-alpha' : 'bn-search');
+  bnSetActive('bn-alpha');
+  if (alphaVisible) bar.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 // Keep mobile fav badge in sync
@@ -1439,7 +1512,7 @@ function showToast(msg) {
   t.textContent = msg;
   t.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+  toastTimer = setTimeout(() => { t.classList.remove('show'); toastTimer = null; }, 2200);
 }
 
 // ── SEARCH HISTORY ──────────────────────────────────────────────
