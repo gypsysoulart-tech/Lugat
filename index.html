@@ -587,11 +587,15 @@ body {
 .entry:not(.edit-mode *):hover .entry-actions {
   display: flex;
   position: absolute;
-  top: 10px; right: 0;
+  top: 12px; right: 12px;
   flex-direction: column;
   flex-wrap: nowrap;
   margin-top: 0;
   grid-column: unset;
+}
+/* Push definition text away from the hover button */
+.entry:not(.edit-mode *):hover > div:nth-child(2) {
+  padding-right: 56px;
 }
 .edit-mode .entry-actions { display: flex; }
 
