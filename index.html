@@ -593,7 +593,7 @@ mark { background: var(--yellow-light); color: var(--text); border-radius: 3px; 
 .copy-toast {
   position: fixed;
   bottom: 28px; left: 50%;
-  transform: translateX(-50%) translateY(80px);
+  transform: translateX(-50%) translateY(120px);
   background: rgba(0,0,0,.8);
   color: #fff;
   padding: 10px 20px;
@@ -601,13 +601,14 @@ mark { background: var(--yellow-light); color: var(--text); border-radius: 3px; 
   font-size: 14px;
   font-weight: 500;
   z-index: 1000;
-  transition: transform .25s cubic-bezier(.34,1.56,.64,1);
+  transition: transform .25s cubic-bezier(.34,1.56,.64,1), opacity .25s;
   pointer-events: none;
   white-space: nowrap;
   -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
+  opacity: 0;
 }
-.copy-toast.show { transform: translateX(-50%) translateY(0); }
+.copy-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
 /* ── FAV BUTTON IN ENTRY ── */
 .fav-btn {
@@ -807,7 +808,7 @@ mark { background: var(--yellow-light); color: var(--text); border-radius: 3px; 
   .entry-actions { position: static; flex-direction: row; flex-wrap: wrap; margin-top: 8px; grid-column: 1/-1; }
   .fav-panel { width: 100%; border-left: none; border-top: 0.5px solid var(--separator2); }
   .settings-panel { right: 12px; left: 12px; width: auto; top: auto; bottom: 72px; border-radius: var(--r-xl); }
-  .copy-toast { bottom: 76px; }
+  .copy-toast { bottom: 80px; }
   .bottom-nav { display: flex; }
 }
 
@@ -1509,9 +1510,11 @@ function copyEntry(i) {
 }
 function showToast(msg) {
   const t = document.getElementById('copy-toast');
-  t.textContent = msg;
-  t.classList.add('show');
   clearTimeout(toastTimer);
+  t.classList.remove('show');
+  t.textContent = msg;
+  void t.offsetHeight; // force reflow
+  t.classList.add('show');
   toastTimer = setTimeout(() => { t.classList.remove('show'); toastTimer = null; }, 2200);
 }
 
