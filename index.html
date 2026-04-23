@@ -1979,7 +1979,7 @@ function expandEntry(event, i) {
   const isExpanded = el.classList.contains('expanded');
   el.classList.toggle('expanded', !isExpanded);
   const hint = document.getElementById(`hint-${i}`);
-  if (hint) hint.textContent = isExpanded ? '&#x25be; Ko\'proq' : 'Yopish ↑';
+  if (hint) hint.textContent = isExpanded ? '▾ Ko\'proq' : 'Yopish ↑';
 
   if (!isExpanded) {
     // Add to recent words
