@@ -1050,6 +1050,21 @@ function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace
 function hl(t,q){if(!q)return esc(t);const e=q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');return esc(t).replace(new RegExp(`(${e})`,'gi'),'<mark>$1</mark>')}
 function render(){clearTimeout(timer);timer=setTimeout(_render,80)}
 
+
+// Get first letter - handles multi-char letters like G' and O'
+function firstLetter(word) {
+  if (!word) return '?';
+  const w = word.toUpperCase();
+  // Check two-char Uzbek Latin letters first
+  if (w.startsWith("G'") || w.startsWith("Gʻ") || w.startsWith("G‘") || w.startsWith("G’")) return "G'";
+  if (w.startsWith("O'") || w.startsWith("Oʻ") || w.startsWith("O‘") || w.startsWith("O’")) return "O'";
+  return w.charAt(0);
+}
+function entryLetter(e) {
+  if (lang === 'ru') return (e.ru || '?').charAt(0).toUpperCase();
+  return firstLetter(disp(e.word));
+}
+
 function isCyrillic(s){ return /[а-яёА-ЯЁ]/.test(s); }
 function isRussian(s){ return /[а-яёА-ЯЁ]/.test(s) && !/[ғҳқўҒҲҚЎ]/.test(s); }
 
@@ -1089,7 +1104,7 @@ function buildFiltered(){
   // Alpha filter applied after scoring
   if(activeAlpha){
     return scored.filter(e=>{
-      const src=lang==='ru'?(e.ru||'').charAt(0).toUpperCase():disp(e.word).charAt(0).toUpperCase();
+      const src=entryLetter(e);
       return src===activeAlpha;
     });
   }
@@ -1151,13 +1166,13 @@ function renderPage(filtered,page,q,append){
   } else {
     const grouped={};
     for(const e of slice){
-      const l=lang==='ru'?(e.ru||'?').charAt(0).toUpperCase():disp(e.word).charAt(0).toUpperCase();
+      const l=entryLetter(e);
       if(!grouped[l])grouped[l]=[];
       grouped[l].push(e);
     }
     for(const letter of Object.keys(grouped).sort((a,b)=>a.localeCompare(b,'uz'))){
       const firstIdx=filtered.findIndex(e=>{
-        const l=lang==='ru'?(e.ru||'?').charAt(0).toUpperCase():disp(e.word).charAt(0).toUpperCase();
+        const l=entryLetter(e);
         return l===letter;
       });
       if(firstIdx>=start&&firstIdx<end){
