@@ -447,9 +447,18 @@ body {
   gap: 0;
   cursor: pointer;
   transition: background .1s;
-  border-radius: 0;
   position: relative;
 }
+.edit-mode .entry {
+  grid-template-columns: 1fr;
+  padding: var(--entry-padding);
+  margin: 4px 0;
+  background: var(--surface2);
+  border-radius: var(--r-md);
+  border-bottom: none;
+}
+.edit-mode .entry-left { padding-right: 0; margin-bottom: 6px; }
+.edit-mode .entry-def { margin-bottom: 4px; }
 .entry:last-child { border-bottom: none; }
 .entry:active { background: var(--surface2); }
 .entry.expanded {
@@ -503,12 +512,22 @@ body {
 /* ── ENTRY ACTIONS ── */
 .entry-actions {
   display: none;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 4px;
+  grid-column: 1 / -1;
+  margin-top: 6px;
+}
+/* On hover (non-edit) show as absolute overlay for copy only */
+.entry:not(.edit-mode *):hover .entry-actions {
+  display: flex;
   position: absolute;
   top: 10px; right: 0;
   flex-direction: column;
-  gap: 4px;
+  flex-wrap: nowrap;
+  margin-top: 0;
+  grid-column: unset;
 }
-.entry:hover .entry-actions,
 .edit-mode .entry-actions { display: flex; }
 
 .act {
