@@ -416,6 +416,39 @@ body {
 .progress-track { flex: 1; max-width: 180px; height: 3px; background: var(--surface2); border-radius: 10px; overflow: hidden; }
 .progress-fill { height: 100%; background: var(--blue); border-radius: 10px; transition: width .2s; width: 0; }
 
+/* ── SKELETON ── */
+@keyframes shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position: 600px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--surface2) 25%, var(--surface3) 50%, var(--surface2) 75%);
+  background-size: 600px 100%;
+  animation: shimmer 1.4s infinite linear;
+  border-radius: 6px;
+}
+[data-theme="dark"] .skeleton {
+  background: linear-gradient(90deg, rgba(255,255,255,.06) 25%, rgba(255,255,255,.12) 50%, rgba(255,255,255,.06) 75%);
+  background-size: 600px 100%;
+  animation: shimmer 1.4s infinite linear;
+}
+.skeleton-entry {
+  padding: 14px 0;
+  border-bottom: 0.5px solid var(--separator2);
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 12px;
+}
+.skeleton-word  { height: 16px; width: 120px; }
+.skeleton-ru    { height: 12px; width: 80px;  margin-top: 8px; }
+.skeleton-line1 { height: 13px; width: 100%; }
+.skeleton-line2 { height: 13px; width: 75%;  margin-top: 6px; }
+.skeleton-line3 { height: 13px; width: 55%;  margin-top: 6px; }
+
+@media (max-width: 640px) {
+  .skeleton-entry { grid-template-columns: 1fr; }
+}
+
 /* ── MAIN ── */
 #main {
   max-width: 820px;
@@ -824,7 +857,6 @@ mark { background: var(--yellow-light); color: var(--text); border-radius: 3px; 
   .entry { grid-template-columns: 1fr; }
   .entry-left { padding-right: 0; margin-bottom: 4px; }
   .edit-banner { padding: 10px 16px; flex-direction: column; gap: 8px; }
-  .entry-actions { position: static; flex-direction: row; flex-wrap: wrap; margin-top: 8px; grid-column: 1/-1; }
   .fav-panel { width: 100%; border-left: none; border-top: 0.5px solid var(--separator2); }
   .settings-panel { right: 12px; left: 12px; width: auto; top: auto; bottom: 72px; border-radius: var(--r-xl); }
   .copy-toast { bottom: 80px; }
@@ -889,10 +921,29 @@ mark { background: var(--yellow-light); color: var(--text); border-radius: 3px; 
   </div>
 </div>
 
-<!-- ALPHA BAR -->
-<nav class="alphabar" id="alpha-bar"></nav>
+<!-- ALPHA BAR - pre-rendered with Latin letters so it shows instantly -->
+<nav class="alphabar" id="alpha-bar"><button class="alpha-btn active" onclick="activeAlpha=null;buildAlpha();render()">Barchasi</button><span class="alpha-divider"></span><button class="alpha-btn" onclick="activeAlpha='A';buildAlpha();render()">A</button><button class="alpha-btn" onclick="activeAlpha='B';buildAlpha();render()">B</button><button class="alpha-btn" onclick="activeAlpha='D';buildAlpha();render()">D</button><button class="alpha-btn" onclick="activeAlpha='E';buildAlpha();render()">E</button><button class="alpha-btn" onclick="activeAlpha='F';buildAlpha();render()">F</button><button class="alpha-btn" onclick="activeAlpha='G';buildAlpha();render()">G</button><button class="alpha-btn" onclick="activeAlpha=\"G'\";buildAlpha();render()">G'</button><button class="alpha-btn" onclick="activeAlpha='H';buildAlpha();render()">H</button><button class="alpha-btn" onclick="activeAlpha='I';buildAlpha();render()">I</button><button class="alpha-btn" onclick="activeAlpha='J';buildAlpha();render()">J</button><button class="alpha-btn" onclick="activeAlpha='K';buildAlpha();render()">K</button><button class="alpha-btn" onclick="activeAlpha='L';buildAlpha();render()">L</button><button class="alpha-btn" onclick="activeAlpha='M';buildAlpha();render()">M</button><button class="alpha-btn" onclick="activeAlpha='N';buildAlpha();render()">N</button><button class="alpha-btn" onclick="activeAlpha='O';buildAlpha();render()">O</button><button class="alpha-btn" onclick="activeAlpha=\"O'\";buildAlpha();render()">O'</button><button class="alpha-btn" onclick="activeAlpha='P';buildAlpha();render()">P</button><button class="alpha-btn" onclick="activeAlpha='Q';buildAlpha();render()">Q</button><button class="alpha-btn" onclick="activeAlpha='R';buildAlpha();render()">R</button><button class="alpha-btn" onclick="activeAlpha='S';buildAlpha();render()">S</button><button class="alpha-btn" onclick="activeAlpha='T';buildAlpha();render()">T</button><button class="alpha-btn" onclick="activeAlpha='U';buildAlpha();render()">U</button><button class="alpha-btn" onclick="activeAlpha='V';buildAlpha();render()">V</button><button class="alpha-btn" onclick="activeAlpha='X';buildAlpha();render()">X</button><button class="alpha-btn" onclick="activeAlpha='Y';buildAlpha();render()">Y</button><button class="alpha-btn" onclick="activeAlpha='Z';buildAlpha();render()">Z</button></nav>
 
-<!-- EDIT BANNER -->
+<!-- STATUS (hidden, only shown on error) -->
+<div class="status-bar" id="status">
+  <span id="status-txt"></span>
+  <div class="progress-track"><div class="progress-fill" id="pf"></div></div>
+</div>
+
+<!-- MAIN - skeleton shown immediately -->
+<main id="main">
+  <div style="padding:8px 0">
+    <div style="height:12px;width:60px;border-radius:6px;background:var(--surface3);margin:24px 0 10px;opacity:.5"></div>
+    <div class="skeleton-entry"><div><div class="skeleton skeleton-word"></div><div class="skeleton skeleton-ru"></div></div><div><div class="skeleton skeleton-line1"></div><div class="skeleton skeleton-line2"></div><div class="skeleton skeleton-line3"></div></div></div>
+    <div class="skeleton-entry"><div><div class="skeleton skeleton-word" style="width:90px"></div><div class="skeleton skeleton-ru" style="width:110px"></div></div><div><div class="skeleton skeleton-line1"></div><div class="skeleton skeleton-line2" style="width:85%"></div></div></div>
+    <div class="skeleton-entry"><div><div class="skeleton skeleton-word" style="width:140px"></div><div class="skeleton skeleton-ru" style="width:65px"></div></div><div><div class="skeleton skeleton-line1"></div><div class="skeleton skeleton-line2"></div><div class="skeleton skeleton-line3" style="width:40%"></div></div></div>
+    <div class="skeleton-entry"><div><div class="skeleton skeleton-word" style="width:100px"></div><div class="skeleton skeleton-ru" style="width:90px"></div></div><div><div class="skeleton skeleton-line1"></div><div class="skeleton skeleton-line2" style="width:60%"></div></div></div>
+    <div class="skeleton-entry"><div><div class="skeleton skeleton-word" style="width:80px"></div><div class="skeleton skeleton-ru" style="width:120px"></div></div><div><div class="skeleton skeleton-line1"></div><div class="skeleton skeleton-line2"></div><div class="skeleton skeleton-line3" style="width:70%"></div></div></div>
+    <div class="skeleton-entry" style="opacity:.7"><div><div class="skeleton skeleton-word" style="width:115px"></div></div><div><div class="skeleton skeleton-line1"></div><div class="skeleton skeleton-line2" style="width:50%"></div></div></div>
+    <div class="skeleton-entry" style="opacity:.4"><div><div class="skeleton skeleton-word" style="width:95px"></div></div><div><div class="skeleton skeleton-line1" style="width:80%"></div></div></div>
+    <div class="skeleton-entry" style="opacity:.15"><div><div class="skeleton skeleton-word" style="width:105px"></div></div><div><div class="skeleton skeleton-line1" style="width:60%"></div></div></div>
+  </div>
+</main>
 <div class="edit-banner" id="edit-banner">
   <span><strong>Tahrir rejimi</strong> — so'zni, izohni yoki tarjimani tuzating</span>
   <div class="banner-btns">
@@ -902,19 +953,6 @@ mark { background: var(--yellow-light); color: var(--text); border-radius: 3px; 
   </div>
 </div>
 
-<!-- STATUS -->
-<div class="status-bar" id="status">
-  <span id="status-txt">Yuklanmoqda...</span>
-  <div class="progress-track"><div class="progress-fill" id="pf"></div></div>
-</div>
-
-<!-- MAIN -->
-<main id="main">
-  <div class="empty-state">
-    <div class="empty-icon">📖</div>
-    <p>Yuklanmoqda...</p>
-  </div>
-</main>
 
 <!-- SETTINGS PANEL -->
 <div class="settings-panel" id="settings-panel">
@@ -1149,19 +1187,18 @@ function entryHTML(e,q){
   let actions='';
   if(e._deleted){
     actions='<button class="act restore" onclick="event.stopPropagation();restoreEntry('+i+')">&#x21a9; Tiklash</button>';
-  } else if(editMode){
-    actions='<button class="act" onclick="event.stopPropagation();openEditor('+i+',\'ru\')">RU</button>'
-      +'<button class="act" onclick="event.stopPropagation();openEditor('+i+',\'def\')">Izoh</button>'
-      +'<button class="act" onclick="event.stopPropagation();openEditor('+i+',\'word\')">So&#39;z</button>'
-      +'<button class="act danger" onclick="event.stopPropagation();deleteEntry('+i+')">&#x2715;</button>';
+  } else {
+    const copyBtn='<button class="act" onclick="event.stopPropagation();copyEntry('+i+')" title="Nusxalash">'
+      +'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>'
+      +' Nusxa</button>';
+    const editBtns=editMode
+      ?'<button class="act" onclick="event.stopPropagation();openEditor('+i+',\'ru\')">RU</button>'
+        +'<button class="act" onclick="event.stopPropagation();openEditor('+i+',\'def\')">Izoh</button>'
+        +'<button class="act" onclick="event.stopPropagation();openEditor('+i+',\'word\')">So&#39;z</button>'
+        +'<button class="act danger" onclick="event.stopPropagation();deleteEntry('+i+')">&#x2715; O&#39;chirish</button>'
+      :'';
+    actions=copyBtn+editBtns;
   }
-  actions='<button class="act" onclick="event.stopPropagation();copyEntry('+i+')" title="Nusxalash">'
-    +'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>'
-    +' Nusxa</button>'+(editMode?'<button class="act" onclick="event.stopPropagation();openEditor('+i+',\'ru\')">RU</button>'
-      +'<button class="act" onclick="event.stopPropagation();openEditor('+i+',\'def\')">Izoh</button>'
-      +'<button class="act" onclick="event.stopPropagation();openEditor('+i+',\'word\')">So&#39;z</button>'
-      +'<button class="act danger" onclick="event.stopPropagation();deleteEntry('+i+')">&#x2715;</button>':'');
-  if(e._deleted) actions='<button class="act restore" onclick="event.stopPropagation();restoreEntry('+i+')">&#x21a9; Tiklash</button>';
   return '<div class="'+entryClass+'" id="entry-'+i+'" onclick="expandEntry(event,'+i+')">'
     +'<div class="entry-left">'
     +'<div style="display:flex;align-items:center;gap:6px">'
@@ -1308,28 +1345,24 @@ function dl(content,name){
 }
 
 async function load(){
-  const status=document.getElementById('status');
-  status.classList.add('show');
   try{
     let resp=await fetch('dictionary_enriched.json');
-    document.getElementById('pf').style.width='40%';
     if(!resp.ok)resp=await fetch('dictionary_parsed.json');
-    document.getElementById('pf').style.width='80%';
     const raw=await resp.json();
     entries=Array.isArray(raw)?raw:Object.values(raw);
     entries.forEach(e=>{e._lat=c2l(e.word);e._defLat=c2l(e.def);});
-    document.getElementById('pf').style.width='100%';
     document.getElementById('h-count').textContent=entries.length.toLocaleString()+" so'z";
     const _hasRu=entries.some(e=>e.ru);
     document.getElementById('btn-ru').disabled=!_hasRu;
     const _bruM=document.getElementById('btn-ru-m');if(_bruM)_bruM.disabled=!_hasRu;
-    status.classList.remove('show');
     loadPrefs();
     loadFavs();
     buildAlpha();
     applyURL();
     if(!document.getElementById('search').value) requestAnimationFrame(()=>requestAnimationFrame(render));
   }catch(err){
+    const status=document.getElementById('status');
+    status.classList.add('show');
     document.getElementById('status-txt').textContent='Xato: '+err.message;
     document.getElementById('pf').style.background='#dc2626';
     document.getElementById('pf').style.width='100%';
