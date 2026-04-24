@@ -362,6 +362,9 @@ body {
   border-bottom: 0.5px solid var(--separator2);
   -webkit-mask-image: linear-gradient(to right, transparent, black 16px, black calc(100% - 16px), transparent);
   mask-image: linear-gradient(to right, transparent, black 16px, black calc(100% - 16px), transparent);
+  position: sticky;
+  top: var(--sticky-alpha-top, 114px);
+  z-index: 175;
 }
 .alphabar::-webkit-scrollbar { display: none; }
 .alpha-btn {
@@ -483,11 +486,15 @@ body {
   text-transform: uppercase;
   color: var(--blue);
   font-family: var(--font-mono);
-  padding: 0 4px 10px;
+  padding: 8px 4px 8px;
   border-bottom: none;
   display: flex;
   align-items: center;
   gap: 10px;
+  position: sticky;
+  top: var(--sticky-letter-top, 162px);
+  z-index: 100;
+  background: var(--bg);
 }
 .letter-head::after {
   content: '';
@@ -827,6 +834,21 @@ mark { background: var(--yellow-light); color: var(--text); border-radius: 3px; 
 }
 .empty-icon { font-size: 40px; margin-bottom: 16px; }
 .empty-state p { font-size: 15px; font-weight: 500; }
+
+/* ── OFFLINE BAR ── */
+.offline-bar {
+  display: none;
+  background: var(--orange-light);
+  color: var(--orange);
+  padding: 8px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-bottom: 0.5px solid rgba(255,149,0,.25);
+}
+.offline-bar.show { display: flex; }
 
 /* ── BOTTOM NAV (mobile) ── */
 .bottom-nav {
@@ -1191,6 +1213,7 @@ mark.mark-root { background: var(--surface3); color: var(--text2); border-radius
     padding-bottom: 2px;
   }
   .alphabar { padding: 0 12px; justify-content: flex-start; height: 44px; }
+  .letter-head { top: var(--sticky-letter-top, 186px); }
   #main { padding: 8px 12px 90px; }
   .entry { grid-template-columns: 1fr; }
   .entry-left { padding-right: 0; margin-bottom: 6px; }
@@ -1261,6 +1284,12 @@ mark.mark-root { background: var(--surface3); color: var(--text2); border-radius
       <button id="btn-ru-m" onclick="setLang('ru')">Rus</button>
     </div>
   </div>
+</div>
+
+<!-- OFFLINE BAR -->
+<div class="offline-bar" id="offline-bar">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.56 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+  Oflayn rejim — lug'at to'liq ishlaydi
 </div>
 
 <!-- ALPHA BAR - pre-rendered with Latin letters so it shows instantly -->
@@ -1380,6 +1409,85 @@ mark.mark-root { background: var(--surface3); color: var(--text2); border-radius
 </div><!-- .app -->
 
 <script>
+// ── SEARCH WORKER SOURCE ──────────────────────────────────────────
+const _WORKER_SRC = `
+const CYR_MAP=[['Ё','Yo'],['ё','yo'],['Ю','Yu'],['ю','yu'],['Я','Ya'],['я','ya'],['Ж','J'],['ж','j'],['Х','X'],['х','x'],['Ц','Ts'],['ц','ts'],['Ч','Ch'],['ч','ch'],['Ш','Sh'],['ш','sh'],['Щ','Sh'],['щ','sh'],['Ъ',"'"],['ъ',"'"],['Ь',''],['ь',''],['А','A'],['а','a'],['Б','B'],['б','b'],['В','V'],['в','v'],['Г','G'],['г','g'],['Д','D'],['д','d'],['Е','E'],['е','e'],['З','Z'],['з','z'],['И','I'],['и','i'],['Й','Y'],['й','y'],['К','K'],['к','k'],['Л','L'],['л','l'],['М','M'],['м','m'],['Н','N'],['н','n'],['О','O'],['о','o'],['П','P'],['п','p'],['Р','R'],['р','r'],['С','S'],['с','s'],['Т','T'],['т','t'],['У','U'],['у','u'],['Ф','F'],['ф','f'],['Э','E'],['э','e'],['Ғ',"G'"],['ғ',"g'"],['Ҳ','H'],['ҳ','h'],['Қ','Q'],['қ','q'],['Ў',"O'"],['ў',"o'"]];
+const UZ_SUFFIXES=['larning','larga','lardan','larda','larni','lar','ning','ndan','nga','nda','ni','dan','da','ga','ni','lik','chi','chilik','siz','sizlik','li','lamoq','moq','ish','uvchi','adigan','ydigan','digan','gan','kan','qan','ayotgan','yotgan','otgan','adi','ydi','di','ibdi','ipti','aman','yman','san','ysan','miz','ymiz','siz','ysiz','imiz','ingiz','ingizni','ingizga','ingizdan','im','ing','i','imni','ingni','roq','gina','kina','qina','oq','yoq','lab','lashib','lashmoq','lashtirmoq'];
+function c2l(s){let r=s;for(const[c,l]of CYR_MAP)r=r.split(c).join(l);return r;}
+function normRu(s){return(s||'').toLowerCase().replace(/ё/g,'е');}
+function editDist1(a,b){const la=a.length,lb=b.length;if(Math.abs(la-lb)>1)return false;if(la===lb){let d=0;for(let i=0;i<la;i++)if(a[i]!==b[i])if(++d>1)return false;return true;}const[s,l]=la<lb?[a,b]:[b,a];let i=0,j=0,d=0;while(i<s.length&&j<l.length){if(s[i]!==l[j]){if(++d>1)return false;j++;}else{i++;j++;}}return true;}
+function stripSuffix(word){const w=word.toLowerCase();for(const sfx of UZ_SUFFIXES){if(w.endsWith(sfx)&&w.length-sfx.length>=3)return w.slice(0,w.length-sfx.length);}return w;}
+function isRussian(s){return /[а-яёА-ЯЁ]/.test(s)&&!/[ғҳқўҒҲҚЎ]/.test(s);}
+function firstLetter(word){if(!word)return '?';const w=word.toUpperCase();if(w.startsWith("G'")||w.startsWith("G\u2018")||w.startsWith("G\u02BC"))return "G'";if(w.startsWith("O'")||w.startsWith("O\u2018")||w.startsWith("O\u02BC"))return "O'";return w.charAt(0);}
+function entryLetter(e,lang,sc){if(lang==='ru')return(e.ru||'?').charAt(0).toUpperCase();const d=sc==='lat'?(e._lat||c2l(e.word)):(e.word);return firstLetter(d);}
+let _entries=[];
+self.onmessage=function({data}){
+  if(data.type==='init'){_entries=data.entries;self.postMessage({type:'ready'});return;}
+  if(data.type==='search'){
+    const r=_buildFiltered(data.q,data.lang,data.script,data.activeAlpha);
+    self.postMessage({type:'result',results:r,reqId:data.reqId});
+  }
+};
+function _buildFiltered(q,lang,script,activeAlpha){
+  const sc=script;
+  if(!q){
+    if(activeAlpha){
+      const acc=[];
+      _entries.forEach((e,i)=>{if(entryLetter(e,lang,sc)===activeAlpha)acc.push({word:e.word,def:e.def,ru:e.ru,_lat:e._lat,_defLat:e._defLat,_i:i,_score:0});});
+      return acc;
+    }
+    return _entries.map((e,i)=>({word:e.word,def:e.def,ru:e.ru,_lat:e._lat,_defLat:e._defLat,_i:i,_score:0}));
+  }
+  const ql=c2l(q);
+  const searchRu=lang==='ru'||isRussian(q);
+  const searchUz=!searchRu||lang==='uz';
+  const root=q.length>=4?stripSuffix(q):q;
+  const rootLat=c2l(root);
+  const hasRoot=root!==q&&root.length>=3;
+  const qRuNorm=normRu(q);
+  const scored=[];
+  _entries.forEach((e,i)=>{
+    const w=(e._lat||c2l(e.word)).toLowerCase();
+    const wCyr=e.word.toLowerCase();
+    const d=(e._defLat||c2l(e.def)).toLowerCase();
+    let score=0;
+    const ruNorm=normRu(e.ru);
+    if(searchRu&&ruNorm){if(ruNorm.startsWith(qRuNorm))score=100;else if(ruNorm.includes(qRuNorm))score=60;}
+    if(searchUz){
+      if(w===q||wCyr===q)score=Math.max(score,100);
+      else if(w.startsWith(q)||wCyr.startsWith(q)||w.startsWith(ql))score=Math.max(score,90);
+      else if(w.includes(q)||wCyr.includes(q)||w.includes(ql))score=Math.max(score,70);
+      else if(d.includes(q)||d.includes(ql))score=Math.max(score,30);
+      else if(hasRoot&&(w.startsWith(root)||wCyr.startsWith(root)||w.startsWith(rootLat)))score=Math.max(score,20);
+      else if(q.length>=3&&editDist1(q,w.slice(0,q.length)))score=Math.max(score,15);
+    }
+    if(score>0)scored.push({word:e.word,def:e.def,ru:e.ru,_lat:e._lat,_defLat:e._defLat,_i:i,_score:score});
+  });
+  scored.sort((a,b)=>b._score-a._score||(a._lat||c2l(a.word)).localeCompare(b._lat||c2l(b.word),'uz'));
+  if(activeAlpha)return scored.filter(e=>entryLetter(e,lang,sc)===activeAlpha);
+  return scored;
+}
+`;
+let _searchWorker = null;
+let _workerReady = false;
+let _searchReqId = 0;
+
+function _initWorker() {
+  try {
+    const blob = new Blob([_WORKER_SRC], { type: 'application/javascript' });
+    _searchWorker = new Worker(URL.createObjectURL(blob));
+    _searchWorker.onmessage = ({ data }) => {
+      if (data.type === 'ready') { _workerReady = true; return; }
+      if (data.type === 'result' && data.reqId === _searchReqId) {
+        filteredCache = data.results;
+        _finishRender(filteredCache);
+      }
+    };
+    _searchWorker.onerror = () => { _searchWorker = null; _workerReady = false; };
+  } catch(e) { _searchWorker = null; }
+}
+_initWorker();
+
 function haptic(ms=8) { try { navigator.vibrate && navigator.vibrate(ms); } catch(e){} }
 
 const CYR_MAP=[['Ё','Yo'],['ё','yo'],['Ю','Yu'],['ю','yu'],['Я','Ya'],['я','ya'],['Ж','J'],['ж','j'],['Х','X'],['х','x'],['Ц','Ts'],['ц','ts'],['Ч','Ch'],['ч','ch'],['Ш','Sh'],['ш','sh'],['Щ','Sh'],['щ','sh'],['Ъ',"'"],['ъ',"'"],['Ь',''],['ь',''],['А','A'],['а','a'],['Б','B'],['б','b'],['В','V'],['в','v'],['Г','G'],['г','g'],['Д','D'],['д','d'],['Е','E'],['е','e'],['З','Z'],['з','z'],['И','I'],['и','i'],['Й','Y'],['й','y'],['К','K'],['к','k'],['Л','L'],['л','l'],['М','M'],['м','m'],['Н','N'],['н','n'],['О','O'],['о','o'],['П','P'],['п','p'],['Р','R'],['р','r'],['С','S'],['с','s'],['Т','T'],['т','t'],['У','U'],['у','u'],['Ф','F'],['ф','f'],['Э','E'],['э','e'],['Ғ',"G'"],['ғ',"g'"],['Ҳ','H'],['ҳ','h'],['Қ','Q'],['қ','q'],['Ў',"O'"],['ў',"o'"]];
@@ -1690,14 +1798,24 @@ function findDidYouMean(q) {
 }
 
 function _render(){
-  const main=document.getElementById('main');
   const q=document.getElementById('search').value.trim().toLowerCase();
   if(observer){observer.disconnect();observer=null;}
-  filteredCache=buildFiltered();
-  const total=filteredCache.length;
-  document.getElementById('rc').textContent=total&&q?`${total.toLocaleString()} natija`:'';
   if(q.length>=2) maybeAddHistory(q);
-  if(!filteredCache.length){
+
+  if(_searchWorker&&_workerReady){
+    _searchReqId++;
+    _searchWorker.postMessage({type:'search',q,lang,script,activeAlpha,reqId:_searchReqId});
+  } else {
+    filteredCache=buildFiltered();
+    _finishRender(filteredCache);
+  }
+}
+function _finishRender(filtered){
+  const main=document.getElementById('main');
+  const q=document.getElementById('search').value.trim().toLowerCase();
+  const total=filtered.length;
+  document.getElementById('rc').textContent=total&&q?`${total.toLocaleString()} natija`:'';
+  if(!filtered.length){
     const dym=findDidYouMean(q);
     const dymHTML=dym.length
       ?'<div class="dym-row">'+dym.map(e=>'<button class="dym-chip" onclick="searchWord(\''+esc(e.word)+'\')">'+esc(disp(e.word))+'</button>').join('')+'</div>'
@@ -1706,7 +1824,7 @@ function _render(){
     return;
   }
   main.innerHTML='';
-  renderPage(filteredCache,0,q,false);
+  renderPage(filtered,0,q,false);
 }
 
 function openEditor(i,field){
@@ -1779,6 +1897,8 @@ async function load(){
     const raw=await resp.json();
     entries=Array.isArray(raw)?raw:Object.values(raw);
     entries.forEach(e=>{e._lat=c2l(e.word);e._defLat=c2l(e.def);});
+    // Send entries to worker (one-time transfer for background search)
+    if(_searchWorker) _searchWorker.postMessage({type:'init',entries:entries.map(e=>({word:e.word,def:e.def,ru:e.ru||'',_lat:e._lat,_defLat:e._defLat}))});
     document.getElementById('h-count').textContent=entries.length.toLocaleString()+" so'z";
     const _hasRu=entries.some(e=>e.ru);
     document.getElementById('btn-ru').disabled=!_hasRu;
@@ -2475,6 +2595,29 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/Lugat/sw.js').catch(() => {});
   });
 }
+
+// ── STICKY OFFSETS ────────────────────────────────────────────────
+function updateStickyOffsets() {
+  const topbar = document.querySelector('.topbar');
+  const searchbar = document.querySelector('.searchbar');
+  const alphabar = document.getElementById('alpha-bar');
+  const alphaTop = (topbar ? topbar.offsetHeight : 56) + (searchbar ? searchbar.offsetHeight : 58);
+  const letterTop = alphaTop + (alphabar ? alphabar.offsetHeight : 48);
+  document.documentElement.style.setProperty('--sticky-alpha-top', alphaTop + 'px');
+  document.documentElement.style.setProperty('--sticky-letter-top', letterTop + 'px');
+}
+window.addEventListener('resize', updateStickyOffsets, { passive: true });
+// Call after fonts/layout settle
+requestAnimationFrame(() => requestAnimationFrame(updateStickyOffsets));
+
+// ── OFFLINE INDICATOR ─────────────────────────────────────────────
+function updateOnlineStatus() {
+  const bar = document.getElementById('offline-bar');
+  if (bar) bar.classList.toggle('show', !navigator.onLine);
+}
+window.addEventListener('online', () => { updateOnlineStatus(); showToast('Aloqa tiklandi ✓'); });
+window.addEventListener('offline', updateOnlineStatus);
+updateOnlineStatus();
 
 document.getElementById('search').addEventListener('input', onSearchInput);
 load();
