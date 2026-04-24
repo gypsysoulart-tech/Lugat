@@ -2,7 +2,8 @@
 <html lang="uz">
 <head>
 <meta charset="UTF-8">
-<meta name="theme-color" content="#007AFF">
+<meta name="theme-color" content="#0066CC">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#3b9eff">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="O'zbek Lug'ati">
@@ -1048,6 +1049,124 @@ mark { background: var(--yellow-light); color: var(--text); border-radius: 3px; 
 .scroll-top.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
 .scroll-top:hover { opacity: .88; }
 
+/* ── DID YOU MEAN ── */
+.dym-row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 14px; }
+.dym-chip {
+  padding: 6px 14px;
+  background: var(--blue-light);
+  color: var(--blue-text);
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  font-family: var(--font);
+  transition: background .1s, color .1s;
+}
+.dym-chip:hover { background: var(--blue); color: #fff; }
+
+/* ── COPY MENU ── */
+.copy-menu {
+  display: none;
+  position: fixed;
+  background: var(--surface-solid);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-lg);
+  z-index: 600;
+  overflow: hidden;
+  border: 0.5px solid var(--separator2);
+  min-width: 160px;
+}
+.copy-menu.open { display: block; }
+.copy-menu-item {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 14px;
+  font-family: var(--font);
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: background .08s;
+}
+.copy-menu-item:hover { background: var(--surface2); }
+
+/* ── SHORTCUTS OVERLAY ── */
+.shortcuts-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  z-index: 700;
+  align-items: center;
+  justify-content: center;
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+.shortcuts-overlay.open { display: flex; }
+.shortcuts-modal {
+  background: var(--surface-solid);
+  border-radius: var(--r-2xl);
+  box-shadow: var(--shadow-lg);
+  padding: 24px;
+  width: 360px;
+  max-width: calc(100vw - 40px);
+  border: 0.5px solid var(--separator2);
+}
+.shortcuts-modal h3 {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -.3px;
+  margin-bottom: 18px;
+}
+.shortcut-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 0.5px solid var(--separator2);
+  font-size: 14px;
+  color: var(--text2);
+}
+.shortcut-row:last-of-type { border-bottom: none; }
+.shortcut-keys { display: flex; gap: 4px; align-items: center; }
+kbd {
+  display: inline-block;
+  padding: 3px 7px;
+  background: var(--surface2);
+  border: 0.5px solid var(--separator);
+  border-radius: 5px;
+  font-size: 12px;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--text2);
+  line-height: 1.4;
+  box-shadow: 0 1px 2px rgba(0,0,0,.08);
+}
+.shortcuts-close {
+  margin-top: 18px;
+  width: 100%;
+  height: 40px;
+  border: none;
+  border-radius: var(--r-md);
+  background: var(--blue);
+  color: #fff;
+  font-size: 15px;
+  font-family: var(--font);
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity .12s;
+}
+.shortcuts-close:hover { opacity: .85; }
+#shortcuts-btn { font-size: 15px; font-weight: 700; }
+@media (max-width: 640px) { #shortcuts-btn { display: none; } }
+
+/* ── ROOT MATCH HIGHLIGHT ── */
+mark.mark-root { background: var(--surface3); color: var(--text2); border-radius: 3px; padding: 1px 2px; }
+
 /* ── SCROLLBAR ── */
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -1110,6 +1229,7 @@ mark { background: var(--yellow-light); color: var(--text); border-radius: 3px; 
       ★ Saqlangan
       <span class="fav-count" id="fav-count">0</span>
     </button>
+    <button class="icon-btn" id="shortcuts-btn" onclick="toggleShortcuts()" title="Yorliqlar">?</button>
     <button class="icon-btn" id="settings-btn" onclick="toggleSettings()">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
     </button>
@@ -1243,9 +1363,25 @@ mark { background: var(--yellow-light); color: var(--text); border-radius: 3px; 
 
 <button class="scroll-top" id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Yuqoriga">↑</button>
 
+<div class="copy-menu" id="copy-menu"></div>
+
+<div class="shortcuts-overlay" id="shortcuts-overlay" onclick="if(event.target===this)toggleShortcuts()">
+  <div class="shortcuts-modal">
+    <h3>Klaviatura yorliqlari</h3>
+    <div class="shortcut-row"><span>Qidiruvga o'tish</span><span class="shortcut-keys"><kbd id="sk-search">⌘K</kbd> <kbd>/</kbd></span></div>
+    <div class="shortcut-row"><span>So'zlar orqali harakat</span><span class="shortcut-keys"><kbd>↑</kbd> <kbd>↓</kbd></span></div>
+    <div class="shortcut-row"><span>So'zni ochish</span><span class="shortcut-keys"><kbd>Enter</kbd></span></div>
+    <div class="shortcut-row"><span>Yopish / bekor qilish</span><span class="shortcut-keys"><kbd>Esc</kbd></span></div>
+    <div class="shortcut-row"><span>Bu oynani ochish</span><span class="shortcut-keys"><kbd>?</kbd></span></div>
+    <button class="shortcuts-close" onclick="toggleShortcuts()">Yopish</button>
+  </div>
+</div>
+
 </div><!-- .app -->
 
 <script>
+function haptic(ms=8) { try { navigator.vibrate && navigator.vibrate(ms); } catch(e){} }
+
 const CYR_MAP=[['Ё','Yo'],['ё','yo'],['Ю','Yu'],['ю','yu'],['Я','Ya'],['я','ya'],['Ж','J'],['ж','j'],['Х','X'],['х','x'],['Ц','Ts'],['ц','ts'],['Ч','Ch'],['ч','ch'],['Ш','Sh'],['ш','sh'],['Щ','Sh'],['щ','sh'],['Ъ',"'"],['ъ',"'"],['Ь',''],['ь',''],['А','A'],['а','a'],['Б','B'],['б','b'],['В','V'],['в','v'],['Г','G'],['г','g'],['Д','D'],['д','d'],['Е','E'],['е','e'],['З','Z'],['з','z'],['И','I'],['и','i'],['Й','Y'],['й','y'],['К','K'],['к','k'],['Л','L'],['л','l'],['М','M'],['м','m'],['Н','N'],['н','n'],['О','O'],['о','o'],['П','P'],['п','p'],['Р','R'],['р','r'],['С','S'],['с','s'],['Т','T'],['т','t'],['У','U'],['у','u'],['Ф','F'],['ф','f'],['Э','E'],['э','e'],['Ғ',"G'"],['ғ',"g'"],['Ҳ','H'],['ҳ','h'],['Қ','Q'],['қ','q'],['Ў',"O'"],['ў',"o'"]];
 const UZ_CYR=['А','Б','В','Г','Д','Е','Ж','З','И','Й','К','Л','М','Н','О','П','Р','С','Т','У','Ф','Х','Ч','Ш','Э','Ю','Я','Ғ','Қ','Ҳ','Ў'];
 const UZ_LAT=['A','B','D','E','F','G',"G'",'H','I','J','K','L','M','N','O',"O'",'P','Q','R','S','T','U','V','X','Y','Z'];
@@ -1315,7 +1451,7 @@ function buildAlpha(){
   const all=document.createElement('button');
   all.className='alpha-btn'+(activeAlpha?'':' active');
   all.textContent=script==='lat'?'Barchasi':'Барча';
-  all.onclick=()=>{activeAlpha=null;buildAlpha();render();};
+  all.onclick=()=>{haptic(4);activeAlpha=null;buildAlpha();render();};
   bar.appendChild(all);
   const div=document.createElement('div');
   div.className='alpha-divider';
@@ -1324,13 +1460,24 @@ function buildAlpha(){
     const b=document.createElement('button');
     b.className='alpha-btn'+(activeAlpha===l?' active':'');
     b.textContent=l;
-    b.onclick=()=>{activeAlpha=l;buildAlpha();render();};
+    b.onclick=()=>{haptic(4);activeAlpha=l;buildAlpha();render();};
     bar.appendChild(b);
   }
 }
 
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
-function hl(t,q){if(!q)return esc(t);const e=q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');return esc(t).replace(new RegExp(`(${e})`,'gi'),'<mark>$1</mark>')}
+function hl(t,q,root){
+  if(!q)return esc(t);
+  const escaped=esc(t);
+  const e=q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  const result=escaped.replace(new RegExp(`(${e})`,'gi'),'<mark>$1</mark>');
+  if(result!==escaped)return result;
+  if(root&&root!==q&&root.length>=3){
+    const er=root.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+    return escaped.replace(new RegExp(`(${er})`,'gi'),'<mark class="mark-root">$1</mark>');
+  }
+  return escaped;
+}
 function render(){kbIndex=-1;clearTimeout(timer);timer=setTimeout(_render,80)}
 
 
@@ -1369,7 +1516,7 @@ function editDist1(a,b){
 
 // Word-type abbreviation badges — lookahead for trailing boundary so consecutive
 // abbreviations (e.g. "esk. kt.") are all matched without consuming the space.
-const ABBR_RE=/(^|\s)(esk\.|kt\.|dial\.|so&#39;zlashuv\.|bot\.|zool\.|anat\.|tibb\.|farm\.|gram\.|mat\.|fiz\.|kim\.|geo\.|tar\.|muz\.|sp\.|tex\.|iqt\.|haq\.|den\.|qish\.|rvsh\.|zid\.|majoz\.|ko&#39;ch\.)(?=\s|$)/gi;
+const ABBR_RE=/(^|\s)(esk\.|kt\.|dial\.|so&#39;zlashuv\.|bot\.|zool\.|anat\.|tibb\.|farm\.|gram\.|mat\.|fiz\.|kim\.|geo\.|tar\.|muz\.|sp\.|tex\.|iqt\.|haq\.|den\.|qish\.|rvsh\.|zid\.|majoz\.|ko&#39;ch\.|эск\.|кт\.|рвш\.|зид\.|бот\.|зоол\.|анат\.|тибб\.|фарм\.|грам\.|мат\.|физ\.|геогр\.|тар\.|муз\.|сп\.|тех\.|иқт\.|ҳуқ\.|диал\.|мажоз\.|кўч\.)(?=\s|$)/gi;
 function badgeify(html){
   return html.replace(ABBR_RE,'$1<span class="wbadge">$2</span>');
 }
@@ -1429,6 +1576,8 @@ function buildFiltered(){
 
 function entryHTML(e,q){
   const i=e._i,w=disp(e.word),d=disp(e.def),ru=e.ru||'';
+  const hlRoot=q&&q.length>=4?stripSuffix(q):null;
+  const useRoot=hlRoot&&hlRoot!==q?hlRoot:null;
   const isFav=favs.has(e.word);
   const longDef=d.length>180;
   const expandBtn=longDef?'<div class="expand-hint" id="hint-'+i+'" onclick="event.stopPropagation();expandEntry(event,'+i+')">&#x25be; Ko&#39;proq</div>':'';
@@ -1453,7 +1602,7 @@ function entryHTML(e,q){
   }
   return '<div class="'+entryClass+'" id="entry-'+i+'" onclick="expandEntry(event,'+i+')">'
     +'<div class="entry-left">'
-    +'<div class="entry-word" id="word-'+i+'">'+hl(w,lang==='uz'?q:'')+'</div>'
+    +'<div class="entry-word" id="word-'+i+'">'+hl(w,lang==='uz'?q:'',useRoot)+'</div>'
     +'<div class="entry-meta">'
     +'<div class="'+ruClass+'" id="ru-'+i+'">'+(ru?hl(ru,lang==='ru'?q:''): '\u2014')+'</div>'
     +'<button class="'+favClass+'" id="fav-'+i+'" onclick="event.stopPropagation();toggleFav('+i+')" title="Saqlash">\u2605</button>'
@@ -1461,7 +1610,7 @@ function entryHTML(e,q){
     +'</div>'
     +'</div>'
     +'<div>'
-    +'<div class="'+defClass+'" id="def-'+i+'">'+badgeify(hl(d,lang==='uz'?q:''))+'</div>'
+    +'<div class="'+defClass+'" id="def-'+i+'">'+badgeify(hl(d,lang==='uz'?q:'',useRoot))+'</div>'
     +expandBtn
     +'</div>'
     +'<div class="entry-actions">'+actions+'</div>'
@@ -1518,6 +1667,28 @@ function renderPage(filtered,page,q,append){
   }
 }
 
+function findDidYouMean(q) {
+  if (!q || q.length < 2) return [];
+  const qLat = c2l(q);
+  const results = [];
+  const seen = new Set();
+  for (const e of entries) {
+    if (results.length >= 3) break;
+    const w = (e._lat || c2l(e.word)).toLowerCase();
+    const wCyr = e.word.toLowerCase();
+    const prefix = w.slice(0, q.length);
+    const prefixCyr = wCyr.slice(0, q.length);
+    // Check edit distance ≤ 2 by applying editDist1 twice (chain check)
+    const close = editDist1(q, prefix) || editDist1(q, prefixCyr) || editDist1(qLat, prefix) ||
+      (q.length >= 3 && (editDist1(q.slice(1), prefix.slice(1)) || editDist1(q.slice(0,-1), prefix.slice(0,-1))));
+    if (close && !seen.has(e.word)) {
+      results.push(e);
+      seen.add(e.word);
+    }
+  }
+  return results;
+}
+
 function _render(){
   const main=document.getElementById('main');
   const q=document.getElementById('search').value.trim().toLowerCase();
@@ -1527,7 +1698,11 @@ function _render(){
   document.getElementById('rc').textContent=total&&q?`${total.toLocaleString()} natija`:'';
   if(q.length>=2) maybeAddHistory(q);
   if(!filteredCache.length){
-    main.innerHTML='<div class="empty-state"><div class="empty-icon">🔍</div><p>Hech narsa topilmadi</p></div>';
+    const dym=findDidYouMean(q);
+    const dymHTML=dym.length
+      ?'<div class="dym-row">'+dym.map(e=>'<button class="dym-chip" onclick="searchWord(\''+esc(e.word)+'\')">'+esc(disp(e.word))+'</button>').join('')+'</div>'
+      :'';
+    main.innerHTML='<div class="empty-state"><div class="empty-icon">🔍</div><p>Hech narsa topilmadi</p>'+dymHTML+'</div>';
     return;
   }
   main.innerHTML='';
@@ -1771,6 +1946,7 @@ function updateFavCount() {
   if (badge) { badge.textContent = n; badge.classList.toggle('show', n > 0); }
 }
 function toggleFav(i) {
+  haptic();
   const word = entries[i].word;
   if (favs.has(word)) favs.delete(word);
   else favs.add(word);
@@ -1834,10 +2010,39 @@ function jumpToWord(word) {
 // ── EXPAND ENTRY ─────────────────────────────────────────────────
 // ── COPY ENTRY ───────────────────────────────────────────────────
 let toastTimer = null;
+let copyMenuOpen = null;
+
 function copyEntry(i) {
+  closeCopyMenu();
+  const btn = event.currentTarget;
+  const menu = document.getElementById('copy-menu');
+  menu.innerHTML = [
+    ['Faqat so\'z', 'word'],
+    ['So\'z + tarjima', 'short'],
+    ['To\'liq', 'full'],
+  ].map(([label, fmt]) => `<button class="copy-menu-item" onclick="doCopy(${i},'${fmt}');closeCopyMenu()">${label}</button>`).join('');
+  const rect = btn.getBoundingClientRect();
+  menu.style.top = (rect.bottom + 6 + window.scrollY) + 'px';
+  menu.style.right = (window.innerWidth - rect.right) + 'px';
+  menu.style.left = 'auto';
+  menu.classList.add('open');
+  copyMenuOpen = i;
+  setTimeout(() => document.addEventListener('click', closeCopyMenu, { once: true }), 0);
+}
+
+function doCopy(i, fmt) {
+  haptic();
   const e = entries[i];
-  const text = `${disp(e.word)}${e.ru ? ' — ' + e.ru : ''}\n${disp(e.def)}`;
+  let text;
+  if (fmt === 'word') text = disp(e.word);
+  else if (fmt === 'short') text = `${disp(e.word)}${e.ru ? ' — ' + e.ru : ''}`;
+  else text = `${disp(e.word)}${e.ru ? ' — ' + e.ru : ''}\n${disp(e.def)}`;
   navigator.clipboard.writeText(text).then(() => showToast('Nusxalandi ✓')).catch(() => showToast('Xato'));
+}
+
+function closeCopyMenu() {
+  document.getElementById('copy-menu').classList.remove('open');
+  copyMenuOpen = null;
 }
 function showToast(msg) {
   const t = document.getElementById('copy-toast');
@@ -1934,19 +2139,31 @@ window.addEventListener('popstate', () => {
   render();
 });
 
+// ── SHORTCUTS MODAL ──────────────────────────────────────────────
+function toggleShortcuts() {
+  document.getElementById('shortcuts-overlay').classList.toggle('open');
+}
+
 // ── KEYBOARD SHORTCUT ────────────────────────────────────────────
 document.addEventListener('keydown', e => {
-  // Cmd+K or / to focus search
-  if ((e.metaKey && e.key === 'k') || (e.key === '/' && document.activeElement !== document.getElementById('search'))) {
+  const inp = document.getElementById('search');
+  // ? key to open shortcuts (when not in search)
+  if (e.key === '?' && document.activeElement !== inp) {
     e.preventDefault();
-    const inp = document.getElementById('search');
+    toggleShortcuts();
+    return;
+  }
+  // Cmd+K or / to focus search
+  if ((e.metaKey && e.key === 'k') || (e.key === '/' && document.activeElement !== inp)) {
+    e.preventDefault();
     inp.focus();
     inp.select();
     showDropdown();
   }
-  // Escape to blur search
+  // Escape to blur search and close overlays
   if (e.key === 'Escape') {
-    document.getElementById('search').blur();
+    document.getElementById('shortcuts-overlay').classList.remove('open');
+    inp.blur();
     hideDropdown();
   }
 });
@@ -1962,6 +2179,7 @@ function updateSearchUI() {
 }
 
 function clearSearch() {
+  haptic();
   const inp = document.getElementById('search');
   inp.value = '';
   updateSearchUI();
@@ -1997,6 +2215,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const isMac = /Mac|iPhone|iPad/.test(navigator.userAgent);
   const shortcut = document.getElementById('search-shortcut');
   if (shortcut) shortcut.textContent = isMac ? '⌘K' : 'Ctrl+K';
+  const skSearch = document.getElementById('sk-search');
+  if (skSearch) skSearch.textContent = isMac ? '⌘K' : 'Ctrl+K';
 
   const inp = document.getElementById('search');
   inp.addEventListener('focus', () => {
@@ -2138,6 +2358,7 @@ function expandEntry(event, i) {
   if (hint) hint.textContent = isExpanded ? '▾ Ko\'proq' : 'Yopish ↑';
 
   if (!isExpanded) {
+    haptic();
     // Add to recent words
     addRecent(entries[i].word);
     // Show related words
