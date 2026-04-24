@@ -561,7 +561,7 @@ body {
   overflow: hidden;
   transition: max-height .4s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.entry.expanded .entry-def { max-height: 100em; }
+.entry.expanded .entry-def { max-height: 30em; }
 .entry-def.short { max-height: none; }
 .expand-hint {
   display: none;
@@ -993,7 +993,7 @@ mark { background: var(--yellow-light); color: var(--text); border-radius: 3px; 
   transition: background .12s, color .12s;
   z-index: 1;
 }
-.search-clear:hover { background: var(--surface3); color: var(--text); }
+.search-clear:hover { background: var(--separator); color: var(--text); }
 .search-clear.show { display: flex; }
 
 /* ── SEARCH SHORTCUT BADGE ── */
@@ -1355,10 +1355,11 @@ function editDist1(a,b){
   return true;
 }
 
-// Word-type abbreviation badges
-const ABBR_RE=/(^|\s)(esk\.|kt\.|dial\.|so&#39;zlashuv\.|bot\.|zool\.|anat\.|tibb\.|farm\.|gram\.|mat\.|fiz\.|kim\.|geo\.|tar\.|muz\.|sp\.|tex\.|iqt\.|haq\.|den\.|qish\.|rvsh\.|zid\.|majoz\.|ko&#39;ch\.)(\s|$)/gi;
+// Word-type abbreviation badges — lookahead for trailing boundary so consecutive
+// abbreviations (e.g. "esk. kt.") are all matched without consuming the space.
+const ABBR_RE=/(^|\s)(esk\.|kt\.|dial\.|so&#39;zlashuv\.|bot\.|zool\.|anat\.|tibb\.|farm\.|gram\.|mat\.|fiz\.|kim\.|geo\.|tar\.|muz\.|sp\.|tex\.|iqt\.|haq\.|den\.|qish\.|rvsh\.|zid\.|majoz\.|ko&#39;ch\.)(?=\s|$)/gi;
 function badgeify(html){
-  return html.replace(ABBR_RE,'$1<span class="wbadge">$2</span>$3');
+  return html.replace(ABBR_RE,'$1<span class="wbadge">$2</span>');
 }
 
 function buildFiltered(){
@@ -1382,6 +1383,7 @@ function buildFiltered(){
   const rootLat = c2l(root);
   const hasRoot = root !== q && root.length >= 3;
 
+  const qRuNorm=normRu(q); // computed once, not per-entry
   const scored = [];
   entries.forEach((e,i)=>{
     const w=(e._lat||disp(e.word)).toLowerCase();
@@ -1391,7 +1393,6 @@ function buildFiltered(){
     let score=0;
 
     const ruNorm=normRu(e.ru);
-    const qRuNorm=normRu(q);
     if(searchRu && ruNorm){
       if(ruNorm.startsWith(qRuNorm)) score=100;
       else if(ruNorm.includes(qRuNorm)) score=60;
