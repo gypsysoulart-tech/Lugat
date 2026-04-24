@@ -536,11 +536,12 @@ body {
 
 .entry-left { padding-right: 16px; min-width: 0; }
 
-/* Word + fav/share button row */
-.entry-word-row {
+/* Russian translation + fav/share buttons row */
+.entry-meta {
   display: flex;
   align-items: center;
   gap: 6px;
+  margin-top: 4px;
   min-width: 0;
 }
 
@@ -552,15 +553,16 @@ body {
   letter-spacing: -.3px;
   font-family: var(--font);
   min-width: 0;
-  word-break: break-word;
+  overflow-wrap: break-word;
 }
 .entry-ru {
   font-size: var(--font-size-ru);
   color: var(--blue);
-  margin-top: 5px;
   font-weight: 400;
   letter-spacing: -.1px;
   opacity: .85;
+  flex: 1;
+  min-width: 0;
 }
 .entry-ru.empty { color: var(--text4); opacity: 1; }
 .entry-def {
@@ -1451,11 +1453,12 @@ function entryHTML(e,q){
   }
   return '<div class="'+entryClass+'" id="entry-'+i+'" onclick="expandEntry(event,'+i+')">'
     +'<div class="entry-left">'
-    +'<div class="entry-word-row">'
     +'<div class="entry-word" id="word-'+i+'">'+hl(w,lang==='uz'?q:'')+'</div>'
-    +'<button class="'+favClass+'" id="fav-'+i+'" onclick="event.stopPropagation();toggleFav('+i+')" title="Saqlash">\u2605</button>'+'<button class="share-btn" onclick="event.stopPropagation();shareEntry('+i+')" title="Ulashish">'+'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>'+'</button>'
-    +'</div>'
+    +'<div class="entry-meta">'
     +'<div class="'+ruClass+'" id="ru-'+i+'">'+(ru?hl(ru,lang==='ru'?q:''): '\u2014')+'</div>'
+    +'<button class="'+favClass+'" id="fav-'+i+'" onclick="event.stopPropagation();toggleFav('+i+')" title="Saqlash">\u2605</button>'
+    +'<button class="share-btn" onclick="event.stopPropagation();shareEntry('+i+')" title="Ulashish">'+'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>'+'</button>'
+    +'</div>'
     +'</div>'
     +'<div>'
     +'<div class="'+defClass+'" id="def-'+i+'">'+badgeify(hl(d,lang==='uz'?q:''))+'</div>'
