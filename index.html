@@ -557,13 +557,12 @@ body {
   font-size: var(--font-size-def);
   color: var(--text2);
   line-height: 1.6;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
+  max-height: 4.9em;
   overflow: hidden;
+  transition: max-height .4s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.entry.expanded .entry-def { -webkit-line-clamp: unset; overflow: visible; }
-.entry-def.short { display: block; overflow: visible; }
+.entry.expanded .entry-def { max-height: 100em; }
+.entry-def.short { max-height: none; }
 .expand-hint {
   display: none;
   margin-top: 6px;
@@ -958,6 +957,85 @@ mark { background: var(--yellow-light); color: var(--text); border-radius: 3px; 
   box-shadow: var(--shadow-md);
 }
 
+/* ── WORD TYPE BADGES ── */
+.wbadge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: var(--surface2);
+  color: var(--text3);
+  vertical-align: middle;
+  margin: 0 1px;
+  white-space: nowrap;
+  font-family: var(--font);
+}
+
+/* ── SEARCH CLEAR BUTTON ── */
+.search-clear {
+  position: absolute;
+  right: 10px; top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: var(--surface3);
+  color: var(--text3);
+  cursor: pointer;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  line-height: 1;
+  transition: background .12s, color .12s;
+  z-index: 1;
+}
+.search-clear:hover { background: var(--surface3); color: var(--text); }
+.search-clear.show { display: flex; }
+
+/* ── SEARCH SHORTCUT BADGE ── */
+.search-shortcut {
+  position: absolute;
+  right: 10px; top: 50%;
+  transform: translateY(-50%);
+  font-size: 11px;
+  color: var(--text4);
+  background: var(--surface2);
+  padding: 2px 6px;
+  border-radius: 5px;
+  pointer-events: none;
+  font-family: var(--font);
+  font-weight: 500;
+  letter-spacing: -.1px;
+  white-space: nowrap;
+  border: 0.5px solid var(--separator2);
+}
+
+/* ── SCROLL TO TOP ── */
+.scroll-top {
+  position: fixed;
+  bottom: 28px; right: 20px;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--blue);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: var(--shadow-md);
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity .22s, transform .22s;
+  z-index: 250;
+  pointer-events: none;
+  font-size: 16px;
+}
+.scroll-top.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.scroll-top:hover { opacity: .88; }
+
 /* ── SCROLLBAR ── */
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -989,6 +1067,7 @@ mark { background: var(--yellow-light); color: var(--text); border-radius: 3px; 
   .fav-panel { width: 100%; border-left: none; border-top: 0.5px solid var(--separator2); }
   .settings-panel { right: 12px; left: 12px; width: auto; top: auto; bottom: 72px; border-radius: var(--r-xl); }
   .copy-toast { bottom: 80px; }
+  .scroll-top { bottom: 80px; right: 14px; }
   .bottom-nav { display: flex; }
 }
 
@@ -1034,6 +1113,8 @@ mark { background: var(--yellow-light); color: var(--text); border-radius: 3px; 
   <div class="search-wrap">
     <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
     <input type="search" id="search" placeholder="So'z qidiring..." autocomplete="off" spellcheck="false"/>
+    <button class="search-clear" id="search-clear" onclick="clearSearch()" title="Tozalash">✕</button>
+    <div class="search-shortcut" id="search-shortcut">⌘K</div>
     <div class="search-dropdown" id="search-dropdown"></div>
   </div>
   <span class="result-badge" id="rc"></span>
@@ -1148,6 +1229,8 @@ mark { background: var(--yellow-light); color: var(--text); border-radius: 3px; 
   </button>
 </nav>
 
+<button class="scroll-top" id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Yuqoriga">↑</button>
+
 </div><!-- .app -->
 
 <script>
@@ -1256,6 +1339,28 @@ function entryLetter(e) {
 function isCyrillic(s){ return /[а-яёА-ЯЁ]/.test(s); }
 function isRussian(s){ return /[а-яёА-ЯЁ]/.test(s) && !/[ғҳқўҒҲҚЎ]/.test(s); }
 
+// Е/Ё are interchangeable in Russian — normalise both before comparing
+function normRu(s){ return (s||'').toLowerCase().replace(/ё/g,'е'); }
+
+// Fuzzy match: returns true if edit distance between a and b is ≤ 1
+function editDist1(a,b){
+  const la=a.length,lb=b.length;
+  if(Math.abs(la-lb)>1)return false;
+  if(la===lb){let d=0;for(let i=0;i<la;i++)if(a[i]!==b[i])if(++d>1)return false;return true;}
+  const[s,l]=la<lb?[a,b]:[b,a];
+  let i=0,j=0,d=0;
+  while(i<s.length&&j<l.length){
+    if(s[i]!==l[j]){if(++d>1)return false;j++;}else{i++;j++;}
+  }
+  return true;
+}
+
+// Word-type abbreviation badges
+const ABBR_RE=/(^|\s)(esk\.|kt\.|dial\.|so&#39;zlashuv\.|bot\.|zool\.|anat\.|tibb\.|farm\.|gram\.|mat\.|fiz\.|kim\.|geo\.|tar\.|muz\.|sp\.|tex\.|iqt\.|haq\.|den\.|qish\.|rvsh\.|zid\.|majoz\.|ko&#39;ch\.)(\s|$)/gi;
+function badgeify(html){
+  return html.replace(ABBR_RE,'$1<span class="wbadge">$2</span>$3');
+}
+
 function buildFiltered(){
   const q=document.getElementById('search').value.trim().toLowerCase();
 
@@ -1285,17 +1390,20 @@ function buildFiltered(){
     const ru=(e.ru||'').toLowerCase();
     let score=0;
 
-    if(searchRu && ru){
-      if(ru.startsWith(q)) score=100;
-      else if(ru.includes(q)) score=60;
+    const ruNorm=normRu(e.ru);
+    const qRuNorm=normRu(q);
+    if(searchRu && ruNorm){
+      if(ruNorm.startsWith(qRuNorm)) score=100;
+      else if(ruNorm.includes(qRuNorm)) score=60;
     }
     if(searchUz){
       if(w===q||wCyr===q) score=Math.max(score,100);
       else if(w.startsWith(q)||wCyr.startsWith(q)||w.startsWith(qLat)) score=Math.max(score,90);
       else if(w.includes(q)||wCyr.includes(q)||w.includes(qLat)) score=Math.max(score,70);
       else if(d.includes(q)||d.includes(qLat)) score=Math.max(score,30);
-      // Morphological match in same pass - no extra loop
       else if(hasRoot&&(w.startsWith(root)||wCyr.startsWith(root)||w.startsWith(rootLat))) score=Math.max(score,20);
+      // Fuzzy match: 1-edit-distance on word prefix (typo tolerance)
+      else if(q.length>=3&&editDist1(q,w.slice(0,q.length))) score=Math.max(score,15);
     }
     if(score>0) scored.push({...e,_i:i,_score:score});
   });
@@ -1339,7 +1447,7 @@ function entryHTML(e,q){
     +'<div class="'+ruClass+'" id="ru-'+i+'">'+(ru?hl(ru,lang==='ru'?q:''): '\u2014')+'</div>'
     +'</div>'
     +'<div>'
-    +'<div class="'+defClass+'" id="def-'+i+'">'+hl(d,lang==='uz'?q:'')+'</div>'
+    +'<div class="'+defClass+'" id="def-'+i+'">'+badgeify(hl(d,lang==='uz'?q:''))+'</div>'
     +expandBtn
     +'</div>'
     +'<div class="entry-actions">'+actions+'</div>'
@@ -1829,31 +1937,60 @@ document.addEventListener('keydown', e => {
   }
 });
 
+// ── SEARCH CLEAR + SHORTCUT BADGE ────────────────────────────────
+function updateSearchUI() {
+  const inp = document.getElementById('search');
+  const clearBtn = document.getElementById('search-clear');
+  const shortcut = document.getElementById('search-shortcut');
+  const hasVal = inp && inp.value.length > 0;
+  if (clearBtn) clearBtn.classList.toggle('show', hasVal);
+  if (shortcut) shortcut.style.display = hasVal ? 'none' : '';
+}
+
+function clearSearch() {
+  const inp = document.getElementById('search');
+  inp.value = '';
+  updateSearchUI();
+  hideDropdown();
+  render();
+  pushURL('', '');
+  inp.focus();
+}
+
+// ── SCROLL TO TOP ─────────────────────────────────────────────────
+window.addEventListener('scroll', () => {
+  const btn = document.getElementById('scroll-top');
+  if (btn) btn.classList.toggle('show', window.scrollY > 500);
+}, { passive: true });
+
 // ── SEARCH INPUT HANDLER ─────────────────────────────────────────
 function onSearchInput() {
   const q = document.getElementById('search').value.trim();
-  // Show suggestions while typing, history only when empty
+  updateSearchUI();
   if (q.length >= 2) showSuggestions(q.toLowerCase());
   else { hideDropdown(); if (!q) showDropdown(); }
   clearTimeout(timer);
   timer = setTimeout(() => {
     render();
-    if (q.length >= 2) {
-      pushURL(q, '');
-    } else if (!q) {
-      pushURL('', '');
-    }
+    if (q.length >= 2) pushURL(q, '');
+    else if (!q) pushURL('', '');
   }, 80);
 }
 
 // Search box focus/blur
 document.addEventListener('DOMContentLoaded', () => {
+  // Set platform-appropriate shortcut label
+  const isMac = /Mac|iPhone|iPad/.test(navigator.userAgent);
+  const shortcut = document.getElementById('search-shortcut');
+  if (shortcut) shortcut.textContent = isMac ? '⌘K' : 'Ctrl+K';
+
   const inp = document.getElementById('search');
   inp.addEventListener('focus', () => {
+    if (shortcut) shortcut.style.display = 'none';
     if (!inp.value) showDropdown();
   });
   inp.addEventListener('blur', () => {
-    setTimeout(hideDropdown, 150);
+    setTimeout(() => { hideDropdown(); updateSearchUI(); }, 150);
   });
   inp.addEventListener('keydown', e => {
     if (e.key === 'Enter') {
@@ -1862,6 +1999,7 @@ document.addEventListener('DOMContentLoaded', () => {
       hideDropdown();
     }
   });
+  updateSearchUI();
 });
 
 // Save to history on enter or after 2s of no typing with results

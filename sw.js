@@ -1,8 +1,10 @@
-const CACHE = 'lugat-v1';
+const CACHE = 'lugat-v3';
+// Don't pre-cache the large JSON during install — it's cached lazily on first fetch.
+// This prevents the SW install from failing on slow/offline connections.
 const ASSETS = [
   '/Lugat/',
   '/Lugat/index.html',
-  '/Lugat/dictionary_enriched.json'
+  '/Lugat/manifest.json',
 ];
 
 self.addEventListener('install', e => {
